@@ -45,3 +45,14 @@ Endpoints:
 7) БД для films
 8) БД для users
 9) БД для reviews
+
+
+Дальнейшие мои планы:
+1) БД для films
+2) API для films
+2.1) /films (get)
+2.2) /films/{film_id} (get)
+2.3) /films/CUD - возможность через графический интерфейс добавить/изменить/удалить фильм (CREATE/UPDATE/DELETE)
+3) API для /premiere (get)
+4) API для /top_films (get)
+   
