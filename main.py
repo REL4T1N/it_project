@@ -35,7 +35,8 @@ async def index_page(request: Request, user_id: str | None = Cookie(default=None
                 return templates.TemplateResponse("index_auth.html", {"request": request, "user": user})
         
         except Exception as e:
-            raise e
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Произошла ошибка {e}")
         
     return templates.TemplateResponse("index.html", {"request": request})
 
@@ -96,3 +97,108 @@ async def register_post(request: Request,
             detail=f"Возникла ошибка при регистарации: {str(e)}"
         )
     
+
+@app.get("/users/{user_id}")
+async def get_user_profile(request: Request, user_id: int):
+    if user_id:
+        try:
+            db = SessionLocal()
+            user = db.execute(
+                select(User).where(User.id == int(user_id))
+            ).scalar()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+                                    detail=f"Пользователь не авторизован. Ошибка {e}")
+            print(user.about_user)
+            return templates.TemplateResponse("user.html", {"request": request, "user": user})
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Произошла ошибка {e}")
+        
+        finally:
+            db.close()
+    else:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                             detail="Пользователь не авторизован")
+    
+
+@app.get("/users/{user_id}/settings")
+async def get_user_settings(request: Request,
+                            user_id: int):
+    if user_id:
+        try:
+            db = SessionLocal()
+            user = db.execute(
+                select(User).where(User.id == user_id)
+            ).scalar()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                    detail=f"Пользователь не авторизован")
+            
+            return templates.TemplateResponse("settings.html", {"request": request, "user": user})
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"произошла ошибка {e}")
+        finally:
+            db.close()
+
+
+@app.post("/users/{user_id}/settings")
+async def update_user_settings(request: Request,
+                               user_id: int,
+                               username: str = Form(...),
+                               email: str = Form(...),
+                               new_password: str | None = Form(default=""),
+                               about_user: str | None = Form(default="")):
+    if not user_id:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, 
+                            detail="Пользователь не авторизован")
+    
+    try:
+        update_user = update_user_profile(user_id=user_id,
+                                          username=username,
+                                          email=email,
+                                          password=new_password if new_password else None,
+                                          about_user=about_user)
+        return RedirectResponse(url=f"/users/{user_id}/settings", 
+                                status_code=status.HTTP_303_SEE_OTHER)
+    
+    except UserNotFound:
+        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                            detail="Пользователь не найден")
+    
+    except UsernameAlreadyExistsError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, 
+                            detail="Пользователь с таким username уже существует")
+    
+    except EmailAlreadyExistsError:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Пользователь с таким email уже существует")
+    
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непредвиденная ошибка {e}")
+    
+
+@app.post("/users/{user_id}/delete")
+async def delete_user(request: Request,
+                      user_id: int):
+    if user_id:
+        try:
+            db = SessionLocal()
+            user = db.execute(
+                select(User).where(User.id == user_id)
+            ).scalar()
+            if not user:
+                raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                    detail=f"Пользователь не найден")
+            db.delete(user)
+            db.commit()
+            return RedirectResponse(url="/", status_code=status.HTTP_303_SEE_OTHER)
+        except Exception as e:
+            db.rollback()
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR, 
+                                detail=f"Произошла непредвиденная ошибка {e}")
+        finally:
+            db.clsoe()
