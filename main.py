@@ -1,14 +1,16 @@
 from fastapi import FastAPI, Request, HTTPException, Depends, status, Form, Cookie
 from fastapi.templating import Jinja2Templates
 from fastapi.security import HTTPBasic
-from fastapi.responses import Response, RedirectResponse
+from fastapi.responses import Response, RedirectResponse, HTMLResponse
 
 from sqlalchemy.orm import Session
 from sqlalchemy import select
+from decimal import Decimal
 from schemas import LoginUser, RegisterUser
 from database import SessionLocal
-from models import User
+from models import User, Film
 from work_with_user import check_user_in_DB, register_user, update_user_profile, UserNotFound, UsernameAlreadyExistsError, EmailAlreadyExistsError
+from work_with_films import add_film, FilmInDB, get_top_films, get_all_movie_info, FilmNotFound
 
 
 app = FastAPI()
@@ -202,3 +204,79 @@ async def delete_user(request: Request,
                                 detail=f"Произошла непредвиденная ошибка {e}")
         finally:
             db.clsoe()
+
+
+@app.get("/films/add")
+async def new_film_page(request: Request):
+    return templates.TemplateResponse("add_film.html", {"request": request})
+
+
+@app.post("/films/add")
+async def add_new_film(request: Request,
+                       name: str = Form(...),
+                       about_film: str = Form(default=""),
+                       time: int = Form(...),
+                       premiere: bool = Form(default=False)):
+    try:
+        new_film = add_film(name=name,
+                            about_film=about_film,
+                            time=time,
+                            premiere=premiere)
+        return RedirectResponse(url="/films/add", status_code=status.HTTP_303_SEE_OTHER)
+    except FilmInDB:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Фильм с таким названием уже существует")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непридведенная ошибка {e}")
+    
+# @app.get("/image", response_class=HTMLResponse)
+# async def get_image(request: Request):
+#     image_url = "https://image.openmoviedb.com/kinopoisk-images/1599028/0b76b2a2-d1c7-4f04-a284-80ff7bb709a4/orig"
+    
+#     # Если нужно получить изображение через requests, можно сделать так:
+#     # response = requests.get(image_url)
+#     # image_data = response.content
+    
+#     # Но в данном случае мы просто передаем URL изображения в шаблон
+#     return templates.TemplateResponse("test.html", {"request": request, "image_url": image_url})
+
+
+@app.get("/top_films")
+async def top_films(request: Request, user_id: str | None = Cookie(default=None)):
+    movies = get_top_films()
+    # print(movies)
+    if user_id:
+        try:
+            # написать функцию для проверки user_id
+            db = SessionLocal()
+            user = db.execute(
+                select(User).where(User.id == int(user_id))
+            ).scalar()
+            if user:
+                return templates.TemplateResponse("top_films_auth.html", {"request": request, "movies": movies})
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Произошла ошибка {e}")
+        
+    return templates.TemplateResponse("top_films.html", {"request": request, "movies": movies})
+
+
+@app.get("/films/{film_id}")
+async def get_film_id(request: Request, film_id: int, user_id: str | None = Cookie(default=None)):
+    if film_id:
+        try:
+            db: Session = SessionLocal()
+            movie = get_all_movie_info(film_id)
+            if movie:
+                return templates.TemplateResponse("film.html", {"request": request, "film": movie})
+            
+        except FilmNotFound:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Фильм не найден")
+        
+        except Exception as e:
+            raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                                detail=f"Произошла ошибка {e}")
+        

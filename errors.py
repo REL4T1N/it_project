@@ -6,3 +6,15 @@ class EmailAlreadyExistsError(Exception):
 
 class UserNotFound(Exception):
     pass
+
+class FilmInDB(Exception):
+    pass
+
+class FilmNotFound(Exception):
+    pass
+
+class ReviewAlreadyExistsError(Exception):
+    pass
+
+class ReviewNotFound(Exception):
+    pass
