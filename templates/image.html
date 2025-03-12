@@ -1,0 +1,25 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Image Viewer</title>
+    <style>
+        .image-container {
+            width: 300px; /* Ширина окна */
+            height: 200px; /* Высота окна */
+            overflow: hidden; /* Обрезаем изображение, если оно больше окна */
+            border: 1px solid #ccc; /* Рамка вокруг окна */
+        }
+        .image-container img {
+            width: 100%; /* Растягиваем изображение на всю ширину окна */
+            height: auto; /* Сохраняем пропорции изображения */
+        }
+    </style>
+</head>
+<body>
+    <div class="image-container">
+        <img src="{{ image_url }}" alt="Image">
+    </div>
+</body>
+</html>

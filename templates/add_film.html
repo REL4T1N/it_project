@@ -1,0 +1,50 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Добавить фильм</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-film text-blue-500 text-2xl"></i>
+            <a href="/" class="text-xl font-bold hover:text-blue-600">КиноКаталог</a>
+        </div>
+        <div class="relative">
+            <input type="text" class="border rounded p-2 w-64" placeholder="Поиск..." disabled>
+        </div>
+        <div>
+            <a href="/" class="text-blue-500 hover:underline">На главную</a>
+        </div>
+    </header>
+    <main class="p-6">
+        <section class="bg-white p-6 rounded shadow">
+            <h1 class="text-2xl font-bold mb-4">Добавить фильм</h1>
+            <form method="post" action="/films/add" class="space-y-4">
+                <div>
+                    <label class="block text-gray-700">Название фильма:</label>
+                    <input type="text" name="name" required class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Описание фильма:</label>
+                    <textarea name="about_film" class="w-full p-2 border rounded"></textarea>
+                </div>
+                <div>
+                    <label class="block text-gray-700">Продолжительность (в минутах):</label>
+                    <input type="text" name="time" class="w-full p-2 border rounded">
+                </div>
+                <div>
+                    <label class="block text-gray-700">Премьера:</label>
+                    <input type="checkbox" name="premiere" class="ml-2">
+                </div>
+                <div class="mt-6">
+                    <button type="submit" class="bg-blue-500 text-white py-2 px-4 rounded hover:bg-blue-600">Добавить фильм</button>
+                </div>
+            </form>
+        </section>
+    </main>
+</body>
+</html>
