@@ -1,0 +1,43 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Главная</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-film text-blue-500 text-2xl"></i>
+            <h1 class="text-xl font-bold">КиноКаталог</h1>
+        </div>
+        <div class="relative">
+            <input type="text" class="border rounded p-2 w-64" placeholder="Поиск..." disabled>
+        </div>
+        <div>
+            <a href="/login" class="text-blue-500 hover:underline">Login</a> /
+            <a href="/register" class="text-blue-500 hover:underline">Register</a>
+        </div>
+    </header>
+    <main class="p-6 grid grid-cols-1 gap-6">
+        <section class="bg-white p-4 rounded shadow relative">
+            <h2 class="text-lg font-bold">Раздел 1</h2>
+            <a href="/nextpage1" class="absolute top-4 right-4 text-blue-500 hover:underline">Следующая страница</a>
+        </section>
+        <section class="bg-white p-4 rounded shadow relative">
+            <h2 class="text-lg font-bold">Раздел 2</h2>
+            <a href="/nextpage2" class="absolute top-4 right-4 text-blue-500 hover:underline">Следующая страница</a>
+        </section>
+        <section class="bg-white p-4 rounded shadow relative">
+            <h2 class="text-lg font-bold">Раздел 3</h2>
+            <a href="/nextpage3" class="absolute top-4 right-4 text-blue-500 hover:underline">Следующая страница</a>
+        </section>
+        <section class="bg-white p-4 rounded shadow relative">
+            <h2 class="text-lg font-bold">Раздел 4</h2>
+            <a href="/nextpage4" class="absolute top-4 right-4 text-blue-500 hover:underline">Следующая страница</a>
+        </section>
+    </main>
+</body>
+</html>
