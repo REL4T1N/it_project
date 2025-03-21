@@ -1,0 +1,139 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>{{ film.name }} - КиноКаталог</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow p-4 flex justify-between items-center">
+        <!-- Header content unchanged -->
+    </header>
+
+    <!-- Backdrop image -->
+    <div class="relative h-96 bg-gray-900">
+        <img src="{{ film.backdrop_url }}" alt="{{ film.name }}" class="w-full h-full object-cover opacity-50">
+    </div>
+
+    <main class="container mx-auto px-4 py-6 -mt-48 relative">
+        <div class="bg-white rounded-lg shadow-lg p-6">
+            <div class="flex flex-col md:flex-row gap-6">
+                <!-- Poster -->
+                <div class="w-full md:w-1/3">
+                    <img src="{{ film.poster_url }}" alt="{{ film.name }}" class="rounded-lg w-full">
+                </div>
+
+                <!-- Film info -->
+                <div class="w-full md:w-2/3 space-y-4">
+                    <h1 class="text-3xl font-bold">
+                        {{ film.name }} ({{ film.year }})
+                    </h1>
+                    
+                    <!-- Ratings container -->
+                    <div class="space-y-2">
+                        <!-- IMDb Rating -->
+                        {% if film.rating_imdb %}
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-yellow-400 text-white px-3 py-1 rounded-full font-bold">
+                                IMDb: {{ film.rating_imdb }}
+                            </div>
+                            {% if film.votes_imdb %}
+                            <span class="text-gray-600">({{ film.votes_imdb }} оценок)</span>
+                            {% endif %}
+                        </div>
+                        {% endif %}
+
+                        <!-- User Rating -->
+                        {% if rating > 0 %}
+                        <div class="flex items-center space-x-2">
+                            <div class="bg-blue-500 text-white px-3 py-1 rounded-full font-bold">
+                                Пользователи: {{ rating }}
+                            </div>
+                            <span class="text-gray-600">(на основе {{ reviews|length }} отзывов)</span>
+                        </div>
+                        {% endif %}
+                    </div>
+
+                    <!-- Metadata unchanged -->
+
+                    <!-- Genres and Countries unchanged -->
+
+                    <!-- Description -->
+                    {% if film.about_film %}
+                    <div class="pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-2">О фильме</h3>
+                        <p class="text-gray-700 leading-relaxed">{{ film.about_film }}</p>
+                    </div>
+                    {% endif %}
+
+                    <!-- User Review Form -->
+                    {% if user %}
+                    <div class="pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-4">Ваш отзыв</h3>
+                        {% if user_review %}
+                        <form action="/films/{{ film.id }}/review/{{ user_review.id }}/update" method="post">
+                            <div class="mb-4">
+                                <label for="rating" class="block text-gray-700">Оценка (1-10)</label>
+                                <input type="number" id="rating" name="rating" min="1" max="10" value="{{ user_review.rating }}" class="border rounded px-3 py-2 w-full">
+                            </div>
+                            <div class="mb-4">
+                                <label for="description" class="block text-gray-700">Комментарий</label>
+                                <textarea id="description" name="description" class="border rounded px-3 py-2 w-full">{{ user_review.description }}</textarea>
+                            </div>
+                            <div class="flex space-x-4">
+                                <button type="submit" class="bg-blue-500 text-white px-4 py-2 rounded">Обновить</button>
+                            </div>
+                        </form>
+                        <!-- Кнопка "Удалить" с POST-запросом -->
+                        <form action="/films/{{ film.id }}/review/{{ user_review.id }}/delete" method="post" class="inline">
+                            <button type="submit" class="bg-red-500 text-white px-4 py-2 rounded text-2xl">Удалить</button>
+                        </form>
+                        {% else %}
+                            <form action="/films/{{ film.id }}/review/{{ user.id }}" method="post">
+                                <div class="mb-4">
+                                    <label for="rating" class="block text-gray-700">Оценка (1-10)</label>
+                                    <input type="number" id="rating" name="rating" min="1" max="10" class="border rounded px-3 py-2 w-full">
+                                </div>
+                                <div class="mb-4">
+                                    <label for="description" class="block text-gray-700">Комментарий</label>
+                                    <textarea id="description" name="description" class="border rounded px-3 py-2 w-full"></textarea>
+                                </div>
+                                <button type="submit" class="bg-green-500 text-white px-4 py-2 rounded">Добавить отзыв</button>
+                            </form>
+                        {% endif %}
+                    </div>
+                    {% endif %}
+
+                    <!-- Reviews Section -->
+                    <div class="pt-4 border-t">
+                        <h3 class="text-lg font-semibold mb-4">Отзывы ({{ reviews|length }})</h3>
+                        {% if reviews %}
+                            <div class="space-y-4">
+                                {% for review in reviews %}
+                                    <div class="border rounded-lg p-4 bg-gray-50">
+                                        <div class="flex items-center space-x-2 mb-2">
+                                            <div class="text-blue-500 font-bold text-lg">
+                                                ★ {{ review.rating }}
+                                            </div>
+                                            <span class="text-gray-600 text-sm">
+                                                Пользователь {{ review.user.username }}
+                                            </span>
+                                        </div>
+                                        {% if review.description %}
+                                            <p class="text-gray-700">{{ review.description }}</p>
+                                        {% endif %}
+                                    </div>
+                                {% endfor %}
+                            </div>
+                        {% else %}
+                            <p class="text-gray-600">Пока нет отзывов. Будьте первым!</p>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </main>
+</body>
+</html>
