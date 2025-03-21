@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 from ..services.film_service import FilmNotFound, get_film_info, get_top_films
 from ..services.user_service import get_user_by_id, UserNotFound, add_film_to_favorites
 from ..services.review_service import get_film_rating, get_reviews_for_film, check_review_in_db
-from ..services.favorite_service import check_film_in_favorite
+# from ..services.favorite_service import check_film_in_favorite
 from ..dependencies import get_db
 from ..models import Film, Review, FavoriteFilm
 from ..config import templates, templates_auth

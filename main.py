@@ -1,9 +1,9 @@
 from fastapi import FastAPI
 from fastapi.security import HTTPBasic
-from modulniy.routes.index import router as index_router
-from modulniy.routes.users import router as user_router
-from modulniy.routes.films import router as film_router
-from modulniy.routes.reviews import router as reviews_router
+from it_project.routes.index import router as index_router
+from it_project.routes.users import router as user_router
+from it_project.routes.films import router as film_router
+from it_project.routes.reviews import router as reviews_router
 
 
 app = FastAPI()

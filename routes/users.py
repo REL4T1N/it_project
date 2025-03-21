@@ -5,8 +5,8 @@ from sqlalchemy.orm import Session
 from ..services.user_service import get_user_by_id, login_user, register_user, update_user, delete_user, UserNotFound, UsernameAlreadyExistsError, EmailAlreadyExistsError
 from ..services.review_service import get_user_rating, get_user_reviews
 from ..services.favorite_service import all_films_in_favorite
-from ..services.watched_service import get_user_watched
-from ..services.watchlist_service import get_user_watchlist
+# from ..services.watched_service import get_user_watched
+# from ..services.watchlist_service import get_user_watchlist
 from ..models import User, Review
 from ..database import SessionLocal
 from ..config import templates, templates_auth
