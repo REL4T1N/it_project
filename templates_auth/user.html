@@ -1,0 +1,71 @@
+<!DOCTYPE html>
+<html lang="ru">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Профиль пользователя</title>
+    <script src="https://cdn.tailwindcss.com"></script>
+    <script src="https://kit.fontawesome.com/YOUR_KIT_CODE.js" crossorigin="anonymous"></script>
+</head>
+<body class="bg-gray-100">
+    <header class="bg-white shadow p-4 flex justify-between items-center">
+        <div class="flex items-center space-x-4">
+            <i class="fas fa-film text-blue-500 text-2xl"></i>
+            <a href="/" class="text-xl font-bold hover:text-blue-600">КиноКаталог</a>
+        </div>
+        <div class="relative">
+            <input type="text" class="border rounded p-2 w-64" placeholder="Поиск..." disabled>
+        </div>
+        <div>
+            <a href="/login" class="text-blue-500 hover:underline">Login</a> /
+            <a href="/register" class="text-blue-500 hover:underline">Register</a>
+        </div>
+    </header>
+    <main class="p-6">
+        <section class="bg-white p-6 rounded shadow">
+            <h1 class="text-2xl font-bold mb-4">Профиль пользователя</h1>
+            <div class="space-y-4">
+                <p><strong class="text-gray-700">Имя пользователя:</strong> <span class="text-gray-900">{{ user.username }}</span></p>
+                <p><strong class="text-gray-700">Email:</strong> <span class="text-gray-900">{{ user.email }}</span></p>
+                <p><strong class="text-gray-700">О себе:</strong> <span class="text-gray-900">{{ user.about_user or "Не заполнено" }}</span></p>
+            </div>
+
+            <!-- Средний рейтинг пользователя -->
+            <div class="mt-6">
+                <h2 class="text-xl font-bold mb-4">Средний рейтинг {{ user.username }}: {{ rating }}</h2>
+            </div>
+
+            <!-- Отзывы пользователя -->
+            <div class="mt-6">
+                <h2 class="text-xl font-bold mb-4">Мои отзывы:</h2>
+                {% if reviews %}
+                    <div class="space-y-4">
+                        {% for review in reviews %}
+                            <div class="border-t pt-4 flex items-start space-x-4">
+                                <!-- Постер фильма -->
+                                {% if review.film.poster_url %}
+                                    <div class="w-32 flex-shrink-0">
+                                        <img src="{{ review.film.poster_url }}" alt="Постер фильма {{ review.film.name }}" class="w-full h-auto rounded">
+                                    </div>
+                                {% endif %}
+
+                                <!-- Информация о фильме -->
+                                <div class="flex-1">
+                                    <p>
+                                        <strong class="text-gray-700">Фильм:</strong>
+                                        <a href="/films/{{ review.film.id }}" class="text-blue-500 hover:underline">{{ review.film.name }}</a>
+                                    </p>
+                                    <p><strong class="text-gray-700">Рейтинг:</strong> <span class="text-gray-900">{{ review.rating }}</span></p>
+                                    <p><strong class="text-gray-700">Описание:</strong> <span class="text-gray-900">{{ review.description or "Нет описания" }}</span></p>
+                                </div>
+                            </div>
+                        {% endfor %}
+                    </div>
+                {% else %}
+                    <p class="text-gray-700">У вас пока нет отзывов.</p>
+                {% endif %}
+            </div>
+        </section>
+    </main>
+</body>
+</html>
