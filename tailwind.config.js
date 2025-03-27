@@ -15,7 +15,13 @@ export default {
     extend: {
       colors:{
         'grey':'hsl(0, 0%, 20%)'
-      }
+      },
+      fontFamily: {
+        'sans': ['Inter', 'sans-serif'],
+        'serif': ['Merriweather', 'serif'],
+        'mono': ['Menlo', 'monospace'],
+        'montserrat': ['Montserrat', 'sans-serif'],
+      },
     },
     }
   },
