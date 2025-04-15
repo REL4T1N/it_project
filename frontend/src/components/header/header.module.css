@@ -1,0 +1,83 @@
+@font-face {
+    font-family: Montserrat;
+    src: url("src/assets/Montserrat/Montserrat_Alternates/MontserratAlternates-Medium.ttf");
+}
+*{
+    margin: 0;
+    padding: 0;
+    list-style: none;
+    text-decoration: none; 
+}
+.header {
+    width: 100%;
+    font-family: Montserrat;
+    height: 90px;
+    background-color: hsl(0, 0%, 10%);
+    display: block;
+    overflow: hidden;
+}
+
+.glow{
+    color: hsl(67, 88%, 57%);
+    text-shadow: 0 0 10px hsl(54, 72%, 25%),
+    0 0 10px hsl(54, 72%, 25%),
+    0 0 5px hsl(54, 72%, 25%);
+    font-family: Montserrat;
+    transition: ease .4s;
+}
+.glow:hover{
+        text-shadow: 0 0 16px hsl(54, 90%, 40%),
+        0 0 8px hsl(54, 90%, 50%),
+        0 0 2px hsl(54, 90%, 50%);
+        color: hsl(67, 57%, 49%); 
+}
+.lcab{
+    height: 100%;
+    width: 50px;
+    padding-left: 4px;
+    padding-right: 4px;
+    transition: ease .4s;
+    padding-top: 15px;
+
+}
+.lcab:hover{
+    filter: 
+        drop-shadow(0 0 4px hsl(54, 90%, 15%)) 
+        drop-shadow(0 0 2px hsl(54, 88%, 20%)) 
+        drop-shadow(0 0 2px hsl(54, 90%, 60%));
+}
+.logo{
+    height: 100%;
+    width: 150px;
+    padding-left: 4px;
+    padding-right: 4px;
+    transition: ease .4s;
+    vertical-align: middle;
+    padding-top: 9px;
+    padding-bottom: 9px;
+}
+.logo:hover{
+    filter: 
+        drop-shadow(0 0 4px hsl(54, 90%, 15%)) 
+        drop-shadow(0 0 2px hsl(54, 88%, 20%)) 
+        drop-shadow(0 0 2px hsl(54, 90%, 60%));
+}
+.glow.register_link{
+    color: hsl(67, 88%, 57%);
+    text-shadow: 0 0 10px hsl(54, 72%, 25%),
+    0 0 10px hsl(54, 72%, 25%),
+    0 0 5px hsl(54, 72%, 25%);
+    font-family: Montserrat;
+    transition: ease .4s;
+}
+.glow.register_link:hover{
+        text-shadow: 0 0 16px hsl(0, 90%, 40%),
+        0 0 8px hsl(54, 90%, 50%),
+        0 0 2px hsl(54, 90%, 50%);
+        color: hsl(67, 57%, 49%); 
+}
+.header::after {
+    content: "";
+    display: table;
+    clear: both;
+  }
