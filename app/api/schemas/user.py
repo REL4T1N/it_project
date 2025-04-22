@@ -31,3 +31,21 @@ class MovieResponse(BaseModel):
     description: Optional[str] = None
     additional_info: Optional[str] = None
     poster_url: Optional[str] = None
+
+class ReviewBase(BaseModel):
+    rating: int
+    text: Optional[str] = None
+
+class ReviewCreate(ReviewBase):
+    pass
+
+class ReviewUpdate(BaseModel):
+    rating: Optional[int] = None
+    text: Optional[str] = None
+
+class ReviewResponse(ReviewBase):
+    user_id: str
+    username: str
+
+    class Config:
+        orm_mode = True

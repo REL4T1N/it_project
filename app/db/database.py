@@ -2,7 +2,9 @@ import sqlite3
 from app.core.config import settings
 
 def get_db_connection():
-    return sqlite3.connect(settings.DATABASE_URL)
+    conn = sqlite3.connect(settings.DATABASE_URL)
+    conn.row_factory = sqlite3.Row  
+    return conn
 
 def init_db():
     conn = get_db_connection()
@@ -28,6 +30,19 @@ def init_db():
             description TEXT,
             additional_info TEXT,
             poster_url TEXT
+        )
+    ''')
+    
+    cursor.execute('''
+        CREATE TABLE IF NOT EXISTS reviews (
+            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            user_id TEXT NOT NULL,
+            movie_id INTEGER NOT NULL,
+            rating INTEGER NOT NULL,
+            text TEXT,
+            FOREIGN KEY (user_id) REFERENCES users(user_id),
+            FOREIGN KEY (movie_id) REFERENCES movies(movie_id),
+            UNIQUE(user_id, movie_id)
         )
     ''')
     
