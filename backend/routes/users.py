@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Annotated
 
 from ..services.users_service import get_user_by_id, check_for_email_and_password, add_user, update_user, delete_user
-from ..dependencies import get_db
+from ..database import get_db
 from ..schemas import LoginUser, AuthUser, UpdateUser, UserResponse
 
 user_router = APIRouter(prefix="/api", tags=["user"])

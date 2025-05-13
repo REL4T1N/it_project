@@ -59,4 +59,4 @@ def delete_user(user_id: int, db: Session) -> UserResponse | None:
     
     db.delete(user)
     db.commit()
-    return UserResponse.from_orm(user)
+    return UserResponse.model_validate(user)

@@ -4,6 +4,8 @@ from fastapi.middleware.cors import CORSMiddleware
 from fastapi.staticfiles import StaticFiles
 
 from .routes.users import user_router
+from .routes.movies.movie import movie_router
+from .routes.reviews.review import review_router
 
 app = FastAPI()
 
@@ -18,6 +20,8 @@ app.add_middleware(
 
 # Подключение маршрутов пользователей
 app.include_router(user_router)
+app.include_router(movie_router)
+app.include_router(review_router)
 
 # Монтирование статических файлов
 static_dir = os.path.join(os.path.dirname(__file__), "static")
