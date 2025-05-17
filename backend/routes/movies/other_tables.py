@@ -10,31 +10,32 @@ from ...services.errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTa
 
 other_tables_router = APIRouter(prefix="/api", tags=["Tables"])
 
-
 # ПОТОМ перенести этот обработчик в user
-# @other_tables_router.get("/tables/{table_name}", response_model=list[ListMovieInfo])
-# async def usersMovieInTable(
-#     table_name: str,
-#     user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-#     db: Session = Depends(get_db)
-# ) -> list[ListMovieInfo]:
-#     if user_id is None:
-#         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-#                             detail="Пользователь не авторизован")
+@other_tables_router.get("/tables/{table_name}", response_model=list[ListMovieInfo])
+async def usersMovieInTable(
+    table_name: str,
+    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    user_id: int,
+    db: Session = Depends(get_db)
+) -> list[ListMovieInfo]:
+    if user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Пользователь не авторизован")
     
-#     try:
-#         return allUserMovieInTable(table_name, user_id, db)
+    try:
+        return allUserMovieInTable(table_name, user_id, db)
 
-#     except Exception as e:
-#         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
-#                             detail=f"Непредвиденная ошибка {e}")
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непредвиденная ошибка {e}")
 
 
 @other_tables_router.get("/{movie_id}/{table_name}")
 async def getTable(
     movie_id: int,
     table_name: str,
-    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    user_id: int,
     db: Session = Depends(get_db)
 ) -> dict:
     if user_id is None:
@@ -66,7 +67,8 @@ async def getTable(
 async def postMovieToTable(
     movie_id: int,
     table_name: str,
-    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    user_id: int,
     db: Session = Depends(get_db)
 ):
     if user_id is None:
@@ -102,7 +104,8 @@ async def postMovieToTable(
 async def deleteMovieToTable(
     movie_id: int,
     table_name: str,
-    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    user_id: int,
     db: Session = Depends(get_db)
 ):
     if user_id is None:

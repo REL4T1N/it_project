@@ -6,13 +6,13 @@ from ...schemas.movie import ListMovieInfo
 from ...services.users_service import get_user_data
 from ..errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
 
-def checkMovieInTable(model_name, user_id: int, movie_id: int, db: Session):
-    return db.query(model_name).filter(model_name.user_id == user_id, model_name.movie_id == movie_id).first()
+def checkMovieInTable(model_name, user_id: int, kp_id: int, db: Session):
+    return db.query(model_name).filter(model_name.user_id == user_id, model_name.kp_id == kp_id).first()
 
-def addMovieToTable(model_name, user_id: int, movie_id: int, db: Session) -> bool:
-    entry = model_name(user_id=user_id, movie_id=movie_id)
+def addMovieToTable(model_name, user_id: int, kp_id: int, db: Session) -> bool:
+    entry = model_name(user_id=user_id, kp_id=kp_id)
     try:
-        if check := checkMovieInTable(model_name, user_id, movie_id, db):
+        if check := checkMovieInTable(model_name, user_id, kp_id, db):
             raise MovieAlreadyExistInTable
         db.add(entry)
         db.commit()
@@ -24,9 +24,9 @@ def addMovieToTable(model_name, user_id: int, movie_id: int, db: Session) -> boo
         raise e
 
 
-def deleteMovieFromTable(model_name, user_id: int, movie_id: int, db: Session) -> bool:
+def deleteMovieFromTable(model_name, user_id: int, kp_id: int, db: Session) -> bool:
     try:
-        if check := checkMovieInTable(model_name, user_id, movie_id, db):
+        if check := checkMovieInTable(model_name, user_id, kp_id, db):
             db.delete(check)
             db.commit()
             return True
@@ -39,14 +39,14 @@ def deleteMovieFromTable(model_name, user_id: int, movie_id: int, db: Session) -
         raise e
     
 
-# def allUserMovieInTable(table_name: str, user_id: int, db: Session) -> list[ListMovieInfo]:
-#     try:
-#         user = get_user_data(user_id=user_id, db=db)
-#         movies = getattr(user, table_name, None)
+def allUserMovieInTable(table_name: str, user_id: int, db: Session) -> list[ListMovieInfo]:
+    try:
+        user = get_user_data(user_id=user_id, db=db)
+        movies = getattr(user, table_name, None)
 
-#         return [ListMovieInfo.model_validate(movie) for movie in movies]
+        return [ListMovieInfo.model_validate(movie) for movie in movies]
     
-#     except Exception as e:
-#         raise e
+    except Exception as e:
+        raise e
         
 

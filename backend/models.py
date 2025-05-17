@@ -117,7 +117,7 @@ class FavoriteList(Base):
     __table_args__ = {"sqlite_autoincrement": True}
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    movie_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
+    kp_id = Column(Integer, ForeignKey("movies.kp_id"), primary_key=True)
 
 
 class WatchedMovies(Base):
@@ -125,7 +125,7 @@ class WatchedMovies(Base):
     __table_args__ = {"sqlite_autoincrement": True}
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    movie_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
+    kp_id = Column(Integer, ForeignKey("movies.kp_id"), primary_key=True)
 
 
 class WatchList(Base):
@@ -133,7 +133,7 @@ class WatchList(Base):
     __table_args__ = {"sqlite_autoincrement": True}
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
-    movie_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
+    kp_id = Column(Integer, ForeignKey("movies.kp_id"), primary_key=True)
 
 
 Base.metadata.create_all(bind=engine)
