@@ -60,3 +60,7 @@ class RecMovieInfo(BaseModel):
 
     class Config:
         from_attributes = True
+
+
+class UpdateGenresRequest(BaseModel):
+    genres: list[str]

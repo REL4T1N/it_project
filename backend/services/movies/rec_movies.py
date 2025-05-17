@@ -1,13 +1,13 @@
 import requests
 from sqlalchemy.orm import Session
 
-from ...models import User
+from ...models import User, Genre
 from ..users_service import get_user_by_id, update_user
 from ...schemas.user import UserRecommendation, UpdateUser
-from ...schemas.movie import RecMovieInfo
+from ...schemas.movie import ListMovieInfo
+from ...services.errors.user import UserNotFound
 
-class UserNotFound(Exception):
-    pass
+from .movie_logic import getMovieInfo
 
 API_token = "DTP33ZA-S594953-G2TT3VY-0BMB9SP"
 headers = {"X-API-KEY": API_token, 
@@ -62,17 +62,18 @@ def apiFilmList(limit: int, genre: str) -> list:
     return []
 
 
-def zaglushka():
-    return [{"id": 0, "name": "Заглушка: рекомендация по similarMovies"}]
+def progressiveRec(similar_movies: list[int], db: Session, N: int) -> list[ListMovieInfo]:
+    movies: list[ListMovieInfo] = []
+    for ID in similar_movies:
+        movie = getMovieInfo(kp_id=ID, db=db, schema_type=ListMovieInfo)
+        movies.append(movie)
+    return movies[:N]
 
 
-def userRecommendation(user_id: int, db: Session, N: int = 10) -> list[RecMovieInfo]:
+def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovieInfo]:
     user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
-    if not user:
-        raise UserNotFound
-    
     if user.similar_movies is not None:
-        return zaglushka()
+        return progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
 
     # Получаем топ-3 жанров и стран
     user_genres = getTopGenres(user.genres_preferences)
@@ -81,7 +82,7 @@ def userRecommendation(user_id: int, db: Session, N: int = 10) -> list[RecMovieI
         return []
     movie_counts = calculateMovieCounts(top_3_genres=user_genres, total_movies=N)
 
-    all_movies: list[RecMovieInfo] = []
+    all_movies: list[ListMovieInfo] = []
     used_movie_ids = set()
 
     # Для каждого жанра выбираем страну с максимальным весом
@@ -90,7 +91,7 @@ def userRecommendation(user_id: int, db: Session, N: int = 10) -> list[RecMovieI
         movies = apiFilmList(limit=count, genre=genre)
         for movie in movies:
             if movie["id"] not in used_movie_ids:
-                all_movies.append(RecMovieInfo.model_validate(movie))
+                all_movies.append(ListMovieInfo.model_validate(movie))
                 used_movie_ids.add(movie["id"])
 
     # Сортируем по рейтингу и выбираем топ-N
@@ -98,6 +99,11 @@ def userRecommendation(user_id: int, db: Session, N: int = 10) -> list[RecMovieI
     recommendations = all_movies[:N]
 
     return recommendations
+
+
+def genresList(db: Session):
+    genres = db.query(Genre.name).all()
+    return [genre[0] for genre in genres]
 
 
 def addUserGenres(user_id: int, new_genres: list[str], db: Session) -> bool:

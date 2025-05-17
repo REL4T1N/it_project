@@ -3,7 +3,7 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from ...database import get_db
-from ...services.movies.fav_watch_and_ed import checkMovieInTable, addMovieToTable, deleteMovieFromTable, allUserMovieInTable
+from ...services.movies.fav_watch_and_ed import checkMovieInTable, addMovieToTable, deleteMovieFromTable, allUserMovieInTable, updateUserSimilarMovies
 from ...schemas.movie import ListMovieInfo
 from ...models import FavoriteList, WatchedMovies, WatchList
 from ...services.errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
@@ -14,8 +14,8 @@ other_tables_router = APIRouter(prefix="/api", tags=["Tables"])
 @other_tables_router.get("/tables/{table_name}", response_model=list[ListMovieInfo])
 async def usersMovieInTable(
     table_name: str,
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-    user_id: int,
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: int,
     db: Session = Depends(get_db)
 ) -> list[ListMovieInfo]:
     if user_id is None:
@@ -34,8 +34,8 @@ async def usersMovieInTable(
 async def getTable(
     movie_id: int,
     table_name: str,
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-    user_id: int,
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: int,
     db: Session = Depends(get_db)
 ) -> dict:
     if user_id is None:
@@ -67,8 +67,8 @@ async def getTable(
 async def postMovieToTable(
     movie_id: int,
     table_name: str,
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-    user_id: int,
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: int,
     db: Session = Depends(get_db)
 ):
     if user_id is None:
@@ -81,11 +81,13 @@ async def postMovieToTable(
             return {"message": "Фильма не добавлен в избранное"}
         elif table_name == "watched_movies":
             if check := addMovieToTable(WatchedMovies, user_id, movie_id, db):
-                return {"message": 'Фильм  добавлен в категорию "Просмотренно"'}
+                if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
+                    return {"message": 'Фильм  добавлен в категорию "Просмотренно"'}
             return {"message": 'Фильма не добавлен в категорию "Просмотернно"'}
         elif table_name == "watch_list_movies":
             if check := addMovieToTable(WatchList, user_id, movie_id, db):
-                return {"message": 'Фильм добавлен в категорию "Буду смотреть"'}
+                if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
+                    return {"message": 'Фильм добавлен в категорию "Буду смотреть"'}
             return {"message": 'Фильма не добавлен в категорию "Буду смотреть"'}    
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -104,8 +106,8 @@ async def postMovieToTable(
 async def deleteMovieToTable(
     movie_id: int,
     table_name: str,
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-    user_id: int,
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: int,
     db: Session = Depends(get_db)
 ):
     if user_id is None:

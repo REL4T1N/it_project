@@ -112,6 +112,14 @@ class Review(Base):
     movie = relationship("Movie", back_populates="reviews")
 
 
+class Genre(Base):
+    __tablename__ = "genres"
+
+    id = Column(Integer, primary_key=True)
+    name = Column(String)
+    slug = Column(String)
+
+
 class FavoriteList(Base):
     __tablename__ = "favorite_movies"
     __table_args__ = {"sqlite_autoincrement": True}
