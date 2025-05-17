@@ -1,7 +1,7 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 from ...models import Review
-from ...schemas import ReviewCreate, ReviewUpdate, ReviewResponse
+from ...__schemas import ReviewCreate, ReviewUpdate, ReviewResponse
 from .errors import ReviewNotFound, ReviewAlreadyExist
 
 

@@ -8,7 +8,7 @@ from ...services.movies.errors import MovieNotFound, MovieNotFoundInDB, Unauthor
 from ...services.movies.movie_logic import getMovieInfo
 from ...services.movies.top_movies_loader import getTopMovies
 
-from ...schemas import MovieInfo, TopMovieInfo
+from ...schemas.movie import MovieInfo, ListMovieInfo
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -51,7 +51,7 @@ async def get_movie(
     return getMovieInfo(kp_id=movie_id, db=db, schema_type=MovieInfo)
 
 
-@movie_router.get("/top/", response_model=list[TopMovieInfo])
+@movie_router.get("/top/", response_model=list[ListMovieInfo])
 # @handle_service_exceptions
 async def get_top(
         count: Annotated[
@@ -63,7 +63,7 @@ async def get_top(
         )
     ] = 10,
     db: Session = Depends(get_db)
-) -> list[TopMovieInfo]:
+) -> list[ListMovieInfo]:
     """
     Get top movies with pagination
     - **count**: Number of movies to return (1-200)

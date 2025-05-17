@@ -1,5 +1,5 @@
 import requests
-from .errors import MovieNotFound, Unauthorized, Forbidden
+from ..errors.movie import MovieNotFound, Unauthorized, Forbidden
 
 API_TOKEN = "DTP33ZA-S594953-G2TT3VY-0BMB9SP"
 headers = {

@@ -1,11 +1,18 @@
 from sqlalchemy.orm import Session
+from typing import Type
+from pydantic import BaseModel
 from ..models import User
-from ..schemas import UserResponse, AuthUser, UpdateUser
+# from ..__schemas import UserResponse, RegisterUser, UpdateUser
+from ..schemas.user import UserResponse, RegisterUser, UpdateUser
+
+def get_user_data(user_id: int, db: Session) -> User | None:
+    return db.query(User).filter(User.id == user_id).first()
 
 # Получение пользователя по ID
-def get_user_by_id(user_id: int, db: Session) -> UserResponse | None:
-    user = db.query(User).filter(User.id == user_id).first()
-    return UserResponse.model_validate(user) if user else None
+def get_user_by_id(user_id: int, db: Session, schema_type: Type[BaseModel]) -> BaseModel | None:
+    if user := get_user_data(user_id=user_id, db=db):
+        return schema_type.model_validate(user) if user else None
+    return None
 
 # Проверка существования пользователя по email или username
 def check_for_email_or_username(email: str, username: str, db: Session) -> UserResponse | None:
@@ -13,11 +20,15 @@ def check_for_email_or_username(email: str, username: str, db: Session) -> UserR
     return UserResponse.model_validate(user) if user else None
 
 # Создание нового пользователя
-def add_user(user_data: AuthUser, db: Session) -> UserResponse:
+def add_user(user_data: RegisterUser, db: Session) -> UserResponse:
     if check_for_email_or_username(user_data.email, user_data.username, db):
         raise ValueError("User with this email or username already exists")
     
-    user = User(email=user_data.email, username=user_data.username, password=user_data.password)
+    user = User(
+        email=user_data.email, 
+        username=user_data.username, 
+        password=user_data.password
+    )
     db.add(user)
     db.commit()
     db.refresh(user)
@@ -46,6 +57,10 @@ def update_user(user_id: int, user_data: UpdateUser, db: Session) -> UserRespons
         user.password = user_data.password
     if user_data.user_description is not None:
         user.user_description = user_data.user_description
+    if user_data.similar_movies is not None:
+        user.similar_movies = user_data.similar_movies
+    if user_data.genres is not None:
+        user.genres_preferences = user_data.genres
 
     db.commit()
     db.refresh(user)

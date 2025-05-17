@@ -1,10 +1,10 @@
 from sqlalchemy.orm import Session
 from typing import Type
 from pydantic import BaseModel
+
 from .movie_repository import checkMovieInDB, addMovie
 from .kinopoisk_client import getApiMovie
-from .errors import MovieNotFound
-from ...schemas import MovieInfo, TopMovieInfo
+from ..errors.movie import MovieNotFound
 from ...models import Movie
 
 

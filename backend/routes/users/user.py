@@ -2,18 +2,18 @@ from fastapi import APIRouter, status, Cookie, Depends, HTTPException, Response,
 from sqlalchemy.orm import Session
 from typing import Annotated
 
-from ..services.users_service import get_user_by_id, check_for_email_and_password, add_user, update_user, delete_user
-from ..database import get_db
-from ..schemas import LoginUser, AuthUser, UpdateUser, UserResponse
+from ...services.users_service import get_user_by_id, check_for_email_and_password, add_user, update_user, delete_user
+from ...database import get_db
+from ...schemas.user import LoginUser, RegisterUser, UpdateUser, UserResponse
 
 user_router = APIRouter(prefix="/api", tags=["user"])
 
 # проверка user_id в Cookie
-@user_router.get("/users/me")
+@user_router.get("/users/me", response_model=UserResponse)
 async def get_current_user(user_id: int | None = Cookie(default=None, alias="user_id"), db: Session = Depends(get_db)):
     if not user_id:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED, detail="Unauthorized")
-    user = get_user_by_id(user_id=user_id, db=db)
+    user = get_user_by_id(user_id=user_id, db=db, schema_type=UserResponse)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
@@ -21,7 +21,7 @@ async def get_current_user(user_id: int | None = Cookie(default=None, alias="use
 # Получение информации о пользователе
 @user_router.get("/users/{user_id}", response_model=UserResponse)
 async def get_user_info(user_id: int, db: Session = Depends(get_db)):
-    user = get_user_by_id(user_id=user_id, db=db)
+    user = get_user_by_id(user_id=user_id, db=db, schema_type=UserResponse)
     if not user:
         raise HTTPException(status_code=status.HTTP_404_NOT_FOUND, detail="User not found")
     return user
@@ -44,7 +44,7 @@ async def login_user(user_data: LoginUser, response: Response, db: Session = Dep
 
 # Регистрация пользователя
 @user_router.post("/users", response_model=UserResponse)
-async def register_user(user_data: AuthUser, response: Response, db: Session = Depends(get_db)):
+async def register_user(user_data: RegisterUser, response: Response, db: Session = Depends(get_db)):
     try:
         user = add_user(user_data=user_data, db=db)
         response.set_cookie(key="user_id", value=str(user.id), httponly=True)

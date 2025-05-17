@@ -2,11 +2,11 @@ import os
 import csv
 from sqlalchemy.orm import Session
 from .movie_logic import getMovieInfo
-from ...schemas import TopMovieInfo
+from ...schemas.movie import ListMovieInfo
 
 
 def process_movie_entry(entry, db):
-    movie = getMovieInfo(int(entry["id"]), db, TopMovieInfo)
+    movie = getMovieInfo(int(entry["id"]), db, ListMovieInfo)
     movie.rating_kp = float(entry["bayesian_rating"])
     return movie
 
