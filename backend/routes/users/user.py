@@ -1,6 +1,5 @@
-from fastapi import APIRouter, status, Cookie, Depends, HTTPException, Response, Request
+from fastapi import APIRouter, status, Cookie, Depends, HTTPException, Response
 from sqlalchemy.orm import Session
-from typing import Annotated
 
 from ...services.users_service import get_user_by_id, check_for_email_and_password, add_user, update_user, delete_user
 from ...database import get_db

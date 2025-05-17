@@ -1,9 +1,9 @@
 from sqlalchemy.orm import Session
 from typing import Optional
-from ...models import Review
-from ...__schemas import ReviewCreate, ReviewUpdate, ReviewResponse
-from .errors import ReviewNotFound, ReviewAlreadyExist
 
+from ...models import Review
+from ...schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
+from ..errors.review import ReviewNotFound, ReviewAlreadyExist
 
 def getReview(review_id: int, db: Session) -> Optional[Review]:
     return db.query(Review).filter(Review.id == review_id).first()

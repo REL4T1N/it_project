@@ -41,7 +41,6 @@ class ListMovieInfo(BaseModel):
     poster: Optional[str]
     genres: list
     countries: list
-    # persons: list
 
     class Config:
         from_attributes = True
@@ -58,7 +57,6 @@ class RecMovieInfo(BaseModel):
     poster: Optional[str]
     genres: list
     countries: list
-    # persons: list
 
     class Config:
         from_attributes = True

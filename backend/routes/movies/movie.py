@@ -4,10 +4,9 @@ from typing import Annotated
 from pydantic import BaseModel
 
 from ...database import get_db
-from ...services.movies.errors import MovieNotFound, MovieNotFoundInDB, Unauthorized, Forbidden
 from ...services.movies.movie_logic import getMovieInfo
 from ...services.movies.top_movies_loader import getTopMovies
-
+from ...services.errors.movie import MovieNotFound, Unauthorized, Forbidden
 from ...schemas.movie import MovieInfo, ListMovieInfo
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])

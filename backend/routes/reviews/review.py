@@ -3,9 +3,9 @@ from sqlalchemy.orm import Session
 from typing import Optional
 
 from ...database import get_db
-from ...services.reviews.reviewCRUD import getReview, addReview, updateReview, deleteReview, userReviews, movieReviews, ReviewResponse, ReviewCreate, ReviewUpdate
-from ...services.reviews.errors import ReviewAlreadyExist, ReviewNotFound
-
+from ...services.reviews.reviewCRUD import getReview, addReview, updateReview, deleteReview, userReviews, movieReviews
+from ...schemas.review import ReviewResponse, ReviewCreate, ReviewUpdate
+from ...services.errors.review import ReviewAlreadyExist, ReviewNotFound
 review_router = APIRouter(prefix="/api/reviews", tags=["Review"])
 
 
