@@ -14,12 +14,12 @@ class LoginUser(BaseModel):
 
 
 class UpdateUser(BaseModel):
-    email: Optional[EmailStr] 
-    username: Optional[str] = Field(min_length=3)  
-    password: Optional[str] = Field(min_length=8)  
-    user_description: Optional[str]
-    similar_movies: Optional[list]
-    genres: Optional[dict]
+    email: Optional[EmailStr] = None 
+    username: Optional[str] = Field(min_length=3, default=None)  
+    password: Optional[str] = Field(min_length=8, default=None)  
+    user_description: Optional[str] = None
+    similar_movies: Optional[list[int]] = None
+    genres: Optional[dict] = None
 
 
 class UserResponse(BaseModel):
@@ -34,8 +34,8 @@ class UserResponse(BaseModel):
 
 class UserRecommendation(BaseModel):
     id: int
-    similar_movies: Optional[list]
-    genres: Optional[dict]
+    similar_movies: Optional[list] = None
+    genres: Optional[dict] = None
 
     class Config:
         from_attributes = True

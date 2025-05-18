@@ -10,7 +10,7 @@ from ...services.movies.rec_movies import addUserGenres, userRecommendation, gen
 from ...schemas.movie import UpdateGenresRequest
 from ...services.errors.user import UserNotFound
 
-rec_router = APIRouter("/api/recommendations", tags=["Reccomendations"])
+rec_router = APIRouter(prefix="/api/recommendations", tags=["Recommendations"])
 
 @rec_router.get("/me", response_model=list[ListMovieInfo])
 async def getUserRec(
@@ -44,7 +44,7 @@ async def setUserGenres(
 ):
     if user_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
-                            detail="Пользователь не авторизоване")
+                            detail="Пользователь не авторизован")
 
     answer = addUserGenres(user_id=user_id, new_genres=request.genres, db=db)
     if answer:

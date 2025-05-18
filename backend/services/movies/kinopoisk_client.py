@@ -1,9 +1,15 @@
 import requests
+import os
+from dotenv import load_dotenv
+
 from ..errors.movie import MovieNotFound, Unauthorized, Forbidden
 
-API_TOKEN = "DTP33ZA-S594953-G2TT3VY-0BMB9SP"
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+API_token = os.getenv("API_token")
 headers = {
-    "X-API-KEY": API_TOKEN,
+    "X-API-KEY": API_token,
     "Accept": "application/json"
 }
 

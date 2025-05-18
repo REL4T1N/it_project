@@ -7,7 +7,7 @@ class ReviewResponse(BaseModel):
     user_id: int
     movie_id: int
     rating: int 
-    text: Optional[str]
+    text: Optional[str] = None
 
     class Config:
         from_attributes = True
@@ -19,5 +19,5 @@ class ReviewCreate(BaseModel):
 
 
 class ReviewUpdate(BaseModel):
-    rating: Optional[int]
-    text: Optional[str]
+    rating: Optional[int] = None
+    text: Optional[str] = None

@@ -1,5 +1,7 @@
 import requests
+import os
 from sqlalchemy.orm import Session
+from dotenv import load_dotenv
 
 from ...models import User, Genre
 from ..users_service import get_user_by_id, update_user
@@ -9,7 +11,10 @@ from ...services.errors.user import UserNotFound
 
 from .movie_logic import getMovieInfo
 
-API_token = "DTP33ZA-S594953-G2TT3VY-0BMB9SP"
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+API_token = os.getenv("API_token")
 headers = {"X-API-KEY": API_token, 
            "Accept": "application/json"}
 
@@ -76,7 +81,7 @@ def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovie
         return progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
 
     # Получаем топ-3 жанров и стран
-    user_genres = getTopGenres(user.genres_preferences)
+    user_genres = getTopGenres(user.genres)
     if not user_genres:
         # написать функцию, которая отдаст просто фильмы из какого-нибудь случайного топа
         return []
@@ -90,12 +95,17 @@ def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovie
         # Берем страну с наибольшим весом
         movies = apiFilmList(limit=count, genre=genre)
         for movie in movies:
-            if movie["id"] not in used_movie_ids:
-                all_movies.append(ListMovieInfo.model_validate(movie))
-                used_movie_ids.add(movie["id"])
+            # if movie["id"] not in used_movie_ids:
+            #     all_movies.append(ListMovieInfo.model_validate(movie))
+            #     used_movie_ids.add(movie["id"])
+            kp_id = movie["id"]
+            if kp_id not in used_movie_ids:
+                # Всегда используем getMovieInfo — он сам всё решит
+                all_movies.append(getMovieInfo(kp_id=kp_id, db=db, schema_type=ListMovieInfo))
+                used_movie_ids.add(kp_id)
 
     # Сортируем по рейтингу и выбираем топ-N
-    all_movies.sort(key=lambda x: x["rating"]["kp"], reverse=True)
+    all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
     recommendations = all_movies[:N]
 
     return recommendations

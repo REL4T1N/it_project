@@ -7,6 +7,7 @@ from .routes.users.user import user_router
 from .routes.movies.movie import movie_router
 from .routes.reviews.review import review_router
 from .routes.movies.other_tables import other_tables_router
+from .routes.movies.rec_movie import rec_router
 
 app = FastAPI()
 
@@ -24,6 +25,7 @@ app.include_router(user_router)
 app.include_router(movie_router)
 app.include_router(review_router)
 app.include_router(other_tables_router)
+app.include_router(rec_router)
 
 # Монтирование статических файлов
 static_dir = os.path.join(os.path.dirname(__file__), "static")

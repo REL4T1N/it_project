@@ -1,3 +1,4 @@
+import json
 from sqlalchemy.orm import Session
 from typing import Type
 from pydantic import BaseModel
@@ -10,9 +11,36 @@ def get_user_data(user_id: int, db: Session) -> User | None:
 
 # Получение пользователя по ID
 def get_user_by_id(user_id: int, db: Session, schema_type: Type[BaseModel]) -> BaseModel | None:
-    if user := get_user_data(user_id=user_id, db=db):
-        return schema_type.model_validate(user) if user else None
-    return None
+    user = get_user_data(user_id=user_id, db=db)
+    if not user:
+        return None
+
+    # Преобразуем в dict (если user — ORM-объект, а не dict)
+    if not isinstance(user, dict):
+        user = user.__dict__
+
+     # Преобразование только для UserRecommendation
+    if schema_type.__name__ == "UserRecommendation":
+        # genres_preferences -> genres
+        if 'genres_preferences' in user and isinstance(user['genres_preferences'], str):
+            try:
+                user['genres'] = json.loads(user['genres_preferences'])
+            except Exception:
+                user['genres'] = None
+        else:
+            user['genres'] = user.get('genres_preferences')
+
+        # similar_movies
+        if 'similar_movies' in user and isinstance(user['similar_movies'], str):
+            try:
+                user['similar_movies'] = json.loads(user['similar_movies'])
+            except Exception:
+                user['similar_movies'] = None
+
+    return schema_type.model_validate(user)
+    # if user := get_user_data(user_id=user_id, db=db):
+    #     return schema_type.model_validate(user) if user else None
+    # return None
 
 # Проверка существования пользователя по email или username
 def check_for_email_or_username(email: str, username: str, db: Session) -> UserResponse | None:

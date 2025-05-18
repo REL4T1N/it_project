@@ -8,10 +8,10 @@ from ...schemas.movie import ListMovieInfo
 from ...models import FavoriteList, WatchedMovies, WatchList
 from ...services.errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
 
-other_tables_router = APIRouter(prefix="/api", tags=["Tables"])
+other_tables_router = APIRouter(prefix="/api/tables", tags=["Tables"])
 
 # ПОТОМ перенести этот обработчик в user
-@other_tables_router.get("/tables/{table_name}", response_model=list[ListMovieInfo])
+@other_tables_router.get("/users/{table_name}", response_model=list[ListMovieInfo])
 async def usersMovieInTable(
     table_name: str,
     user_id: Optional[int] = Cookie(default=None, alias="user_id"),
