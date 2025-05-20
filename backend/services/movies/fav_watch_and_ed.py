@@ -6,6 +6,7 @@ from ...schemas.movie import ListMovieInfo
 from ...schemas.user import UpdateUser
 from ...services.users_service import get_user_data
 from ..errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
+from ..errors.user import UserNotFound
 from ..users_service import get_user_data, update_user
 
 from .movie_repository import checkMovieInDB
@@ -58,10 +59,19 @@ def allUserMovieInTable(table_name: str, user_id: int, db: Session) -> list[List
 def updateUserSimilarMovies(user_id: int, kp_id: int, db: Session) -> bool:
     movie_data = checkMovieInDB(kp_id=kp_id, db=db)
     user = get_user_data(user_id=user_id, db=db)
-    user_similar = user["similar_movies"]
+    if not user:
+        raise UserNotFound
 
-    if movie_data["similarMovies"]:
-        movie_similar = [movie["id"] for movie in movie_data["similarMovies"]]
+
+    user_similar = user.similar_movies
+
+    if user_similar is None:
+        user_similar = []
+
+    if movie_data is None or not getattr(movie_data, "similarMovies", None):
+        movie_similar = []
+    else:
+        movie_similar = [movie["id"] for movie in movie_data.similarMovies]
 
     for movie_id in movie_similar:
         if movie_id not in user_similar:
