@@ -1,0 +1,20 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+:root{
+    background-color: hsl(0, 0%, 20%);
+    background-image: url('./assets/background2.png'); 
+    background-size: cover; 
+    background-position: center; 
+    background-repeat: no-repeat; 
+    scroll-behavior: hidden;
+}
+@layer base {
+    @font-face {
+      font-family: 'Montserrat';
+      font-style: normal;
+      font-weight: 400;
+      font-display: swap;
+      src: url('@/assets/Montserrat/Montserrat_Alternates/MontserratAlternates-Medium.ttf') format('truetype');
+    }
+  }
