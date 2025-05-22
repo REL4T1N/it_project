@@ -3,31 +3,24 @@ from typing import Optional
 
 from ...models import Review
 from ...schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
-from ..errors.review import ReviewNotFound, ReviewAlreadyExist
+from ..errors.review import ReviewNotFound, ReviewAlreadyExist, ReviewRatingError
 
-def getReview(review_id: int, db: Session) -> Optional[Review]:
-    return db.query(Review).filter(Review.id == review_id).first()
-    
+def search_review_data(user_id: int, kp_id: int, db: Session) -> Review | None:
+    return db.query(Review).filter(Review.user_id == user_id, Review.kp_id == kp_id).first()
 
-def addReview(
-        movie_id: int,
-        user_id: int,
-        review_data: ReviewCreate,
-        db: Session
-    ) -> ReviewResponse:
+
+def add_review(user_id: int, kp_id: int, review_data: ReviewCreate, db: Session) -> ReviewResponse:
     try:
-        review = db.query(Review).filter(
-            Review.user_id == user_id, Review.movie_id == movie_id
-        ).first()
-        if review is not None:
+        review = search_review_data(user_id, kp_id, db)
+        if review:
             raise ReviewAlreadyExist
         
-        if not 0 <= review_data.rating <= 10:
-            raise ValueError
+        if (0 <= review_data.rating <= 10) == False:
+            raise ReviewRatingError
 
         new_review = Review(
             user_id=user_id,
-            movie_id=movie_id,
+            kp_id=kp_id,
             rating=review_data.rating,
             text=review_data.text
         )
@@ -39,25 +32,21 @@ def addReview(
     except Exception as e:
         db.rollback()
         raise e
+    
 
-
-def updateReview(
-        review_id: int,
-        update_data: ReviewUpdate,
-        db: Session
-    ) -> ReviewResponse:
+def update_review(user_id: int, kp_id: int, db: Session, review_data: ReviewUpdate) -> ReviewResponse:
     try:
-        review = getReview(review_id=review_id, db=db)
+        review = search_review_data(user_id, kp_id, db)
         if review is None:
             raise ReviewNotFound
         
-        if update_data.rating is not None:
-            if not 0 <= update_data.rating <= 10:
-                raise ValueError
-            review.rating = update_data.rating
+        if review_data.rating is not None:
+            if (0 <= review_data.rating <= 10) == False:
+                raise ReviewRatingError
+            review.rating = review_data.rating
         
-        if update_data.text is not None:
-            review.text = update_data.text
+        if review_data.text is not None:
+            review.text = review_data.text
 
         db.commit()
         db.refresh(review)
@@ -66,13 +55,14 @@ def updateReview(
     except Exception as e:
         db.rollback()
         raise e
-    
 
-def deleteReview(review_id: int, db: Session) -> ReviewResponse:
+
+def delete_review(user_id: int, kp_id: int, db: Session) -> ReviewResponse:
     try:
-        review = getReview(review_id=review_id, db=db)
+        review = search_review_data(user_id, kp_id, db)
         if review is None:
             raise ReviewNotFound
+        
         db.delete(review)
         db.commit()
         return ReviewResponse.model_validate(review)
@@ -82,18 +72,19 @@ def deleteReview(review_id: int, db: Session) -> ReviewResponse:
         raise e
 
 
-def movieReviews(movie_id: int, exclude_user_id: Optional[int], db: Session) -> list[ReviewResponse]:
-    query = db.query(Review).filter(Review.movie_id == movie_id)
-    if exclude_user_id is not None:
+def movie_reviews(kp_id: int, exclude_user_id: Optional[int], db: Session) -> list[ReviewResponse]:
+    query = db.query(Review).filter(Review.kp_id == kp_id)
+    if exclude_user_id:
         query = query.filter(Review.user_id != exclude_user_id)
 
     reviews = query.all()
     return [ReviewResponse.model_validate(review) for review in reviews]
-    
 
-def userReviews(user_id: int, db: Session) -> list[ReviewResponse]:
+
+def user_reviews(user_id: int, db: Session) -> list[ReviewResponse]:
     reviews = db.query(Review).filter(Review.user_id == user_id).all()
     return [ReviewResponse.model_validate(review) for review in reviews]
+
 
 
 

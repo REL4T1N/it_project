@@ -3,9 +3,8 @@ from typing import Optional
 
 
 class ReviewResponse(BaseModel):
-    review_id: int
     user_id: int
-    movie_id: int
+    movie_id: int = Field(alias="kp_id")
     rating: int 
     text: Optional[str] = None
 
@@ -15,7 +14,7 @@ class ReviewResponse(BaseModel):
 
 class ReviewCreate(BaseModel):
     rating: int
-    text: Optional[str]
+    text: Optional[str] = None
 
 
 class ReviewUpdate(BaseModel):

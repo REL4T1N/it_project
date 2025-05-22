@@ -1,4 +1,4 @@
-from sqlalchemy import Column, Integer, String, Float, JSON, ForeignKey, Index
+from sqlalchemy import Column, Integer, String, Float, JSON, ForeignKey, Index, UniqueConstraint
 from sqlalchemy.orm import relationship
 from .database import Base, engine
 
@@ -95,16 +95,12 @@ class Movie(Base):
 
 class Review(Base):
     __tablename__ = "reviews"
-    __table_args__ = (
-        Index("ix_reviews_user_id", "user_id"),
-        Index("ix_reviews_movie_id", "movie_id"),
-        Index("ix_reviews_user_movie_ids", "user_id", "movie_id"),
+    __table_args__ = (       
         {"sqlite_autoincrement": True}
     )
 
-    id = Column(Integer, primary_key=True)
-    user_id = Column(Integer, ForeignKey("users.id"), nullable=False)
-    movie_id = Column(Integer, ForeignKey("movies.id"), nullable=False)
+    user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
+    kp_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
     rating = Column(Integer, default=0)
     text = Column(String(4096))
 
