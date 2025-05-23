@@ -5,3 +5,4 @@ requests
 apscheduler
 alembic
 python-dotenv
+passlib[bcrypt]
