@@ -11,9 +11,9 @@ import { MdRateReview } from "react-icons/md";
 import { useRef } from 'react';
 import { fetchUser, GetFilmData, GetReviewData } from '../API/UserAPI';
 import Review  from '../components/review/Review'
-const Actors = [
-  'Леонардо Дикаприо', 'Бред Питт', '...'
-];
+import UnauthorizedPage from '../components/UnathorizedPage';
+import Ratebar from '../components/Ratebar';
+
 const FilmPage = () => {
   const {user, setUser} = useContext(UserContext);
   const reviewScrollref = useRef(null);
@@ -21,19 +21,27 @@ const FilmPage = () => {
     reviewScrollref.current?.scrollIntoView({behavior: 'smooth'})
   }
   const { movie_id } = useParams();
-
+  const [isOpen, setIsOpen] = useState(false);
   const [error, setError] = useState(null);
   const [filmData, setFilmData] = useState(null);
   const [reviewData, setReviewData] = useState(null);
-
+  const [rating, setRating] = useState(null);
   useEffect(()=>{
-    GetFilmData(movie_id, setFilmData, setError);
-    GetReviewData(movie_id, setReviewData, setError);
+    try {
+    GetFilmData(movie_id, setFilmData);
+    GetReviewData(movie_id, setReviewData);
+    } catch (e) {
+      setError(e);
+    }
   },[])
-  if (!filmData) {
-  return <p>Loading…</p>;   // первый рендер
+  if (error) {
+    return <ErrorBoundary error={error} />;
   }
-  return (error ? <p>{error}</p> : filmData == null ? <p>Loading...</p> :
+  if (!filmData) {
+    return <div className="text-center text-xl py-12 text-gray-400">Загрузка...</div>;
+  if (user === null) return <UnauthorizedPage />;
+  }
+  return (
     <>
       <Header/>
       <div className='w-[1400px] bg-black place-self-center'>
@@ -43,21 +51,17 @@ const FilmPage = () => {
         <div className='flex px-16 py-8' >
           <div className="flex space-x-6">
             <button className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition">
-                <BookmarkPlus className="text-[#C6D459] w-36 h-6" />
-            </button>
-            <button className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition">
               <BookmarkPlus className="text-[#C6D459] w-6 h-6" />
             </button>
             <button className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition" >
               <MoreHorizontal className="text-[#C6D459] w-6 h-6" />
             </button>
             <div>
-              <div className='flex space-x-2'>
+              <div className='flex space-x-6 pl-64'>
                 <div id='rate' className={`w-16 h-10 pl-7 place-content-center rounded-lg translate-y-[6px] pr-14`}>
                   <p className={`${filmData?.rating < 5 ? "text-red-500" : filmData?.rating >= 7 ? "text-green-500" : "text-gray-500"} font-[Montserrat] font-semibold text-3xl`}>{filmData?.rating.toFixed(1)}</p>
                 </div>
-                  <p className='text-[#a3ae49] text-sm pt-2'>{filmData?.votes} голосов</p>
-                  <button className='bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition text-[#a3ae49] font-[Montserrat] hover:text-[#C6DE17] flex '><MdStarRate className='text-2xl pr-1'/>Оценить</button>
+                  <p className='text-[#a3ae49] text-sm font-bold pt-2 -translate-y-[3px]'>{filmData?.votes} голосов</p>
                   <button className='bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition text-[#a3ae49] font-[Montserrat] hover:text-[#C6DE17] flex' onClick={ScrollToRewie}><MdRateReview className='text-2xl pr-1'/>Рецензии</button>
               </div>
             </div>
@@ -86,14 +90,14 @@ const FilmPage = () => {
                   </React.Fragment>
                 ))}
           </div>
-          <div className='-translate-y-7'>
-            <h1 className='text-[#C6D459] pl-24  text-lg pb-3 font-[Montserrat]'> В главных ролях </h1>
-            {Actors.map((actor) => (
-              <React.Fragment key={actor}>
-                <p className=' text-[#9ba646] pl-24 py-0.5'>{actor}</p>
+          <div className='-translate-y-7 pl-12'>
+            <h1 className='text-[#C6D459]  text-lg pb-3 font-[Montserrat]'> В главных ролях </h1>
+            {filmData?.persons.slice(0,8).map((actor) => (
+              <React.Fragment key={actor.id}>
+                <p className=' text-[#9ba646]  py-1'>{actor.name}</p>
               </React.Fragment>
             ))}
-            <p className={`${styles.glow} pl-24`}>Всего 52 актера</p>
+            <p className={`${styles.glow} `}>Всего {filmData?.persons.length}</p>
           </div>
         </div>
         <div ref={reviewScrollref} className='pb-8'>

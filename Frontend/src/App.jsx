@@ -12,7 +12,7 @@ import {
   Route,
  } from "react-router-dom";
 import { UserContext } from "./context/UserContext";
-import { fetchUser } from "./API/userAPI";
+import { fetchUser } from "./API/UserAPI";
 function App() {
   const [user, setUser] = useState(null);
   const [error, setError] = useState(null);

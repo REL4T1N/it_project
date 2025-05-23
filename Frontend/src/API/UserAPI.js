@@ -1,6 +1,5 @@
-import { Rewind } from "lucide-react";
 import { fetchWrapper } from "./fetchWrapper";
-
+import { useNavigate } from "react-router-dom";
 export async function UserRegistration(data) {
     return fetchWrapper('/api/users', {method: 'POST', body: data});
 }
@@ -36,31 +35,31 @@ export async function DeleteUser(setUser, setError, user_id){
         return response.message;
     }
 }
-export async function Logout(setUser, setError, user_id){
+export async function Logout(setUser, setError){
     try{
-        const response = await fetchWrapper(`/api/users/${user_id}`, {method:'POST'});
+        const response = await fetchWrapper(`/api/users/logout`, {method:'POST'});
         setUser(null);
         return response.message;
     } catch (e) {
         setError(e.message);
     }
 }
-export async function GetFilmData(movie_id, setFilmData, setError){
+export async function GetFilmData(movie_id, setFilmData){
     try {
         const FilmData = await fetchWrapper(`/api/movies/${movie_id}`);
         setFilmData(FilmData);
     }
     catch (e){
-        setError(e)
+        throw Error(e.message.detail);
     }
 }
-export async function GetReviewData(movie_id, setReviewData, setError){
+export async function GetReviewData(movie_id, setReviewData){
     try {
         const Review = await fetchWrapper(`/api/reviews/movies/${movie_id}`);
         setReviewData(Review);
     }
     catch (e){
-        setError(e)
+        throw Error(e.message.detail)
     }
 }
 export async function SendReviewData(data, movie_id, setError){

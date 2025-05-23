@@ -2,15 +2,14 @@ import { useContext } from 'react'
 import Header from "../components/header/Header"
 import { useState, useEffect  } from "react";
 import Button from '../components/button';
-import { Link } from 'react-router-dom';
-import { fetchUser } from '../API/userAPI';
+import { Link, useNavigate } from 'react-router-dom';
+import { fetchUser, Logout } from '../API/UserAPI';
 import { UserContext } from '../context/UserContext';
 const User = () => {
   const {user, setUser} = useContext(UserContext);
   const [error, setError]= useState(null);
-  useEffect(() => {
-    fetchUser(setUser, setError);
-  },[])
+  if (!user) throw new Error('Не вошли в систему');
+  const navigate = useNavigate();
   return (
     <>
     <Header/>
@@ -33,11 +32,12 @@ const User = () => {
             </div>
         </div>
         <div className='flex items-start justify-center'>
-          <form method="post" action="/api/logout">
-            <div className="flex w-[400px] px-10 py-[10px]">
-              <Button title="Выйти"></Button>
-            </div>
-          </form>
+          <div className="flex w-[400px] px-10 py-[10px]">
+            <Button title="Выйти" handleClick={() =>{
+              Logout(setUser, setError);
+              navigate('/');
+            }}></Button>
+          </div>
         </div>
       </div>
       <div className="flex flex-col p-5 bg-[#1A1A1A] w-[900px] h-[600px] justify-beetwen py-[80px] px-[-20] rounded-xl">
