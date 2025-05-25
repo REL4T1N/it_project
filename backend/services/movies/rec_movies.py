@@ -4,10 +4,11 @@ from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
 from ...models import User, Genre
-from ..users_service import get_user_by_id, update_user
+# from ..users_service import get_user_by_id, update_user
 from ...schemas.user import UserRecommendation, UpdateUser
 from ...schemas.movie import ListMovieInfo
 from ...services.errors.user import UserNotFound
+from ...services.users.users_service import get_user_by_id, update_user
 
 from .movie_logic import getMovieInfo
 

@@ -26,6 +26,7 @@ const Register = () => {
     e.preventDefault();
     try{
       await UserRegistration(Form); // Прокидывать ошибка до сюда
+      await fetchUser(setUser, setError);
       navigate('/choose_rec');
     }
     catch(error){
