@@ -1,6 +1,6 @@
-import { Link } from 'react-router-dom';
-import catImg from '../assets/okak-8.png'; 
-import Button from './buttons/Button';
+import { Link } from "react-router-dom";
+import catImg from "../assets/okak-8.png";
+import Button from "./buttons/Button";
 export default function UnauthorizedPage() {
   return (
     <section className="min-h-screen flex items-center justify-center px-4">
@@ -14,14 +14,13 @@ export default function UnauthorizedPage() {
               Страница <br /> недоступна
             </h2>
             <p className="max-w-full text-[#a3ae49] text-[clamp(18px,2.5vw,32px)] break-words">
-              Похоже, вы не вошли в систему. <br /> Пожалуйста, авторизуйтесь, чтобы продолжить.
+              Похоже, вы не вошли в систему. <br /> Пожалуйста, авторизуйтесь,
+              чтобы продолжить.
             </p>
             <div className="flex w-[560px]  py-[30px]">
-            <Link
-              to="/login"
-            >
-              <Button  title='Окак, ну пожалуй войду'></Button>
-            </Link>
+              <Link to="/login">
+                <Button title="Окак, ну пожалуй войду"></Button>
+              </Link>
             </div>
           </div>
         </div>

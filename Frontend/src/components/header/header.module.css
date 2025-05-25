@@ -1,79 +1,80 @@
-*{
-    margin: 0;
-    padding: 0;
-    list-style: none;
-    text-decoration: none; 
+* {
+  margin: 0;
+  padding: 0;
+  list-style: none;
+  text-decoration: none;
 }
 .header {
-    width: 100%;
-    font-family: Montserrat;
-    height: 90px;
-    background-color: hsl(0, 0%, 10%);
-    display: block;
-    overflow: hidden;
+  width: 100%;
+  font-family: Montserrat;
+  height: 90px;
+  background-color: hsl(0, 0%, 10%);
+  display: block;
+  overflow: hidden;
 }
 
-.glow{
-    color: hsl(67, 42%, 45%);
-    text-shadow: 0 0 10px hsl(54, 72%, 25%),
+.glow {
+  color: hsl(67, 42%, 45%);
+  text-shadow:
+    0 0 10px hsl(54, 72%, 25%),
     0 0 10px hsl(54, 72%, 25%),
     0 0 5px hsl(54, 72%, 25%);
-    font-family: Montserrat;
-    transition: ease .4s;
+  font-family: Montserrat;
+  transition: ease 0.4s;
 }
-.glow:hover{
-        text-shadow: 0 0 4px hsl(54, 49%, 51%),
-        0 0 4px hsl(54, 81%, 67%),
-        0 0 1px hsl(54, 77%, 65%);
-        color: hsl(67, 51%, 52%); 
+.glow:hover {
+  text-shadow:
+    0 0 4px hsl(54, 49%, 51%),
+    0 0 4px hsl(54, 81%, 67%),
+    0 0 1px hsl(54, 77%, 65%);
+  color: hsl(67, 51%, 52%);
 }
-.lcab{
-    height: 100%;
-    width: 50px;
-    padding-left: 4px;
-    padding-right: 4px;
-    transition: ease .4s;
-    padding-top: 15px;
-
+.lcab {
+  height: 100%;
+  width: 50px;
+  padding-left: 4px;
+  padding-right: 4px;
+  transition: ease 0.4s;
+  padding-top: 15px;
 }
-.lcab:hover{
-    filter: 
-        drop-shadow(0 0 4px hsl(54, 90%, 15%)) 
-        drop-shadow(0 0 2px hsl(54, 88%, 20%)) 
-        drop-shadow(0 0 2px hsl(54, 90%, 60%));
+.lcab:hover {
+  filter: drop-shadow(0 0 4px hsl(54, 90%, 15%))
+    drop-shadow(0 0 2px hsl(54, 88%, 20%))
+    drop-shadow(0 0 2px hsl(54, 90%, 60%));
 }
-.logo{
-    height: 100%;
-    width: 150px;
-    padding-left: 4px;
-    padding-right: 4px;
-    transition: ease .4s;
-    vertical-align: middle;
-    padding-top: 9px;
-    padding-bottom: 9px;
+.logo {
+  height: 100%;
+  width: 150px;
+  padding-left: 4px;
+  padding-right: 4px;
+  transition: ease 0.4s;
+  vertical-align: middle;
+  padding-top: 9px;
+  padding-bottom: 9px;
 }
-.logo:hover{
-    filter: 
-        drop-shadow(0 0 4px hsl(54, 90%, 15%)) 
-        drop-shadow(0 0 2px hsl(54, 88%, 20%)) 
-        drop-shadow(0 0 2px hsl(54, 90%, 60%));
+.logo:hover {
+  filter: drop-shadow(0 0 4px hsl(54, 90%, 15%))
+    drop-shadow(0 0 2px hsl(54, 88%, 20%))
+    drop-shadow(0 0 2px hsl(54, 90%, 60%));
 }
-.glow.register_link{
-    color: hsl(67, 88%, 57%);
-    text-shadow: 0 0 10px hsl(54, 72%, 25%),
+.glow.register_link {
+  color: hsl(67, 88%, 57%);
+  text-shadow:
+    0 0 10px hsl(54, 72%, 25%),
     0 0 10px hsl(54, 72%, 25%),
     0 0 5px hsl(54, 72%, 25%);
-    font-family: Montserrat;
-    transition: ease .4s;
+  font-family: Montserrat;
+  transition: ease 0.4s;
 }
-.glow.register_link:hover{
-        text-shadow: 0 0 16px hsl(54, 90%, 40%),
-        0 0 8px hsl(54, 90%, 50%),
-        0 0 2px hsl(54, 90%, 50%);
-        color: hsl(67, 57%, 49%); 
+.glow.register_link:hover {
+  text-shadow:
+    0 0 16px hsl(54, 90%, 40%),
+    0 0 8px hsl(54, 90%, 50%),
+    0 0 2px hsl(54, 90%, 50%);
+  color: hsl(67, 57%, 49%);
 }
 .header::after {
-    content: "";
-    display: table;
-    clear: both;
-  }
+  content: "";
+  display: table;
+  clear: both;
+}

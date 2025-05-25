@@ -1,52 +1,55 @@
 import React, { useState, useContext } from "react";
-import {UserContext} from "../context/UserContext";
+import { UserContext } from "../context/UserContext";
 import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GetRecomendationData, SendRecomendationData } from "../API/userAPI";
 
 const genres = [
-  "Драма", "Комедия", "Боевик", "Фантастика", "Триллер",
-  "Ужасы", "Мелодрама", "Приключения", "Анимация", "Документальный"
+  "Драма",
+  "Комедия",
+  "Боевик",
+  "Фантастика",
+  "Триллер",
+  "Ужасы",
+  "Мелодрама",
+  "Приключения",
+  "Анимация",
+  "Документальный",
 ];
 
 const RecommendationsPage = () => {
-  const {user, setUser} = useContext(UserContext);
+  const { user, setUser } = useContext(UserContext);
   const [error, setError] = useState(null);
   const [genreData, setGenreData] = useState(null);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const navigate = useNavigate();
   const toggleGenre = (genre) => {
     setSelectedGenres((prev) =>
-      prev.includes(genre)
-        ? prev.filter((g) => g !== genre)
-        : [...prev, genre]
+      prev.includes(genre) ? prev.filter((g) => g !== genre) : [...prev, genre],
     );
-    setError(null); 
+    setError(null);
   };
 
   const handleSubmit = async (e) => {
     e.preventDefault();
     try {
-    
       if (selectedGenres.length >= 3 && selectedGenres.length <= 10) {
         await SendRecomendationData(selectedGenres, user.id);
         navigate("/");
-      }
-      else {
+      } else {
         throw new Error("Выберите от 3 до 10 жанров");
       }
-    }
-    catch (e) {
+    } catch (e) {
       setError(e.message);
     }
   };
   useEffect(() => {
     async function fetchData() {
-        try {
-            await GetRecomendationData(setGenreData);
-        } catch (e) {
-            setError(e.message);
-        }
+      try {
+        await GetRecomendationData(setGenreData);
+      } catch (e) {
+        setError(e.message);
+      }
     }
     fetchData();
   }, []);
@@ -56,7 +59,10 @@ const RecommendationsPage = () => {
         <h2 className="text-[#C6DE17] text-3xl font-bold mb-7 text-center">
           Выбери любимые жанры
         </h2>
-        <form onSubmit={handleSubmit} className="w-full flex flex-col items-center">
+        <form
+          onSubmit={handleSubmit}
+          className="w-full flex flex-col items-center"
+        >
           <div className="grid grid-cols-3 gap-4 w-full mb-8">
             {genreData?.map((genre) => (
               <button
@@ -64,9 +70,10 @@ const RecommendationsPage = () => {
                 key={genre}
                 onClick={() => toggleGenre(genre)}
                 className={`py-3 px-5 rounded-xl font-semibold flex items-center justify-center transition shadow
-                  ${selectedGenres.includes(genre)
-                    ? "bg-[#C6D459] text-[#23251d] scale-105"
-                    : "bg-[#23251d] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"
+                  ${
+                    selectedGenres.includes(genre)
+                      ? "bg-[#C6D459] text-[#23251d] scale-105"
+                      : "bg-[#23251d] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"
                   }
                 `}
               >
@@ -82,9 +89,7 @@ const RecommendationsPage = () => {
           </button>
         </form>
         {error && (
-          <p className="text-red-500 mt-4 text-center">
-            Ошибка: {error}
-          </p>
+          <p className="text-red-500 mt-4 text-center">Ошибка: {error}</p>
         )}
       </div>
     </div>

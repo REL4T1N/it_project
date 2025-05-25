@@ -2,13 +2,12 @@ import React from "react";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import { MakeTable } from "../../API/userAPI";
 
-
 const FavouriteButton = ({ movie_id, favourite, setIsFavourite, setError }) => (
   <button
     onClick={async () => {
       try {
         if (favourite) {
-          await MakeTable(movie_id, "favorite_movies", true); 
+          await MakeTable(movie_id, "favorite_movies", true);
         } else {
           await MakeTable(movie_id, "favorite_movies", false);
         }

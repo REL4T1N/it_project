@@ -3,7 +3,14 @@ import { MoreHorizontal } from "lucide-react";
 import { FaEye, FaCheck } from "react-icons/fa";
 import { MakeTable } from "../API/UserAPI";
 
-const PopoverMenu = ({isWatched, setIsWatched, watchList, setIsWatchList, setError, movie_id}) => {
+const PopoverMenu = ({
+  isWatched,
+  setIsWatched,
+  watchList,
+  setIsWatchList,
+  setError,
+  movie_id,
+}) => {
   const [isOpen, setIsOpen] = useState(false);
   const btnRef = useRef(null);
   const popoverRef = useRef(null);
@@ -41,19 +48,20 @@ const PopoverMenu = ({isWatched, setIsWatched, watchList, setIsWatchList, setErr
           {/* Кнопка "Буду смотреть" */}
           <button
             className={`w-full py-3 rounded-xl flex items-center space-x-3 px-4 font-semibold transition
-            ${watchList
-              ? "bg-[#C6D459] text-[#23251d]"
-              : "bg-[#1c1c1e] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"}`}
+            ${
+              watchList
+                ? "bg-[#C6D459] text-[#23251d]"
+                : "bg-[#1c1c1e] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"
+            }`}
             onClick={() => {
-              try{
+              try {
                 if (watchList) {
                   MakeTable(movie_id, "watch_list_movies", true);
                 } else {
                   MakeTable(movie_id, "watch_list_movies", false);
                 }
-                setIsWatchList(v => !v);
-              }
-              catch (e) {
+                setIsWatchList((v) => !v);
+              } catch (e) {
                 setError(e);
               }
             }}
@@ -66,19 +74,20 @@ const PopoverMenu = ({isWatched, setIsWatched, watchList, setIsWatchList, setErr
           {/* Кнопка "Просмотрено" */}
           <button
             className={`w-full py-3 rounded-xl flex items-center space-x-3 px-4 font-semibold transition
-            ${isWatched
-              ? "bg-[#C6D459] text-[#23251d]"
-              : "bg-[#1c1c1e] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"}`}
+            ${
+              isWatched
+                ? "bg-[#C6D459] text-[#23251d]"
+                : "bg-[#1c1c1e] text-[#C6D459] hover:bg-[#2c2c2e] hover:text-[#C6DE17]"
+            }`}
             onClick={() => {
-              try{
+              try {
                 if (isWatched) {
                   MakeTable(movie_id, "watched_movies", true);
                 } else {
                   MakeTable(movie_id, "watched_movies", false);
                 }
-                setIsWatched(v => !v);
-              }
-              catch (e) {
+                setIsWatched((v) => !v);
+              } catch (e) {
                 setError(e);
               }
             }}

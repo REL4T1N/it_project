@@ -6,8 +6,8 @@
   "type": "module",
   "scripts": {
     "dev": "concurrently \"npm:dev:front\" \"npm:dev:back\"",
-   "dev:front": "vite",                     
-   "dev:back":  "cd .. && uvicorn backend.main:app --reload",
+    "dev:front": "vite",
+    "dev:back": "cd .. && uvicorn backend.main:app --reload",
     "build": "vite build",
     "lint": "eslint .",
     "preview": "vite preview"
