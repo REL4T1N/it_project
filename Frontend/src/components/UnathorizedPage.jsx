@@ -1,6 +1,6 @@
 import { Link } from 'react-router-dom';
 import catImg from '../assets/okak-8.png'; 
-import Button from './Button';
+import Button from './buttons/Button';
 export default function UnauthorizedPage() {
   return (
     <section className="min-h-screen flex items-center justify-center px-4">

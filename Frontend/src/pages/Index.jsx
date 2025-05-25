@@ -11,7 +11,14 @@ function Index() {
   const {user, setUser} = useContext(UserContext);
   const [error, setError]= useState(null);
   useEffect(() => {
-    fetchUser(setUser, setError);
+    async function fetchData() {
+      try {
+        await fetchUser(setUser, setError);
+      } catch (e) {
+        setError(e.message);
+      }
+    }
+    fetchData();
   },[])
   return (
     <>

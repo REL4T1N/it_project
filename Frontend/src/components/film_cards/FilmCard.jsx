@@ -10,7 +10,7 @@ const FilmCard = (props) => {
   return (
     <Link to={`/movies/${movie_id}`}>
     <div className='overflow-hidden'>
-      <div  className="mx-7 my-5 center border border-sky-50 w-[150px]  h-[240px]" id='FilmCard'>
+      <div  className="mx-7 my-5 center border border-[#a3ae49] w-[150px]  h-[240px]" id='FilmCard'>
           <div id='Image' className='max-w-[150px] max-h-[240px] relative'>
           <img src={logopic} alt="Логотип" className={styles.picture}/>
               <div id='rate' className={`absolute top-1 right-1 px-2 rounded-lg ${props.rate < 5 ? "bg-red-500" : props.rate >= 7 ? "bg-green-500" : "bg-gray-500"}`}>

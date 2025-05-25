@@ -1,15 +1,21 @@
 import { useContext } from 'react'
 import Header from "../components/header/Header"
 import { useState, useEffect  } from "react";
-import Button from '../components/button';
+import Button from '../components/buttons/Button';
 import { Link, useNavigate } from 'react-router-dom';
-import { fetchUser, Logout } from '../API/UserAPI';
+import { fetchUser, Logout } from '../API/userAPI';
 import { UserContext } from '../context/UserContext';
+import UnauthorizedPage from '../components/UnathorizedPage';
 const User = () => {
   const {user, setUser} = useContext(UserContext);
   const [error, setError]= useState(null);
-  if (!user) throw new Error('Не вошли в систему');
   const navigate = useNavigate();
+  if (!user) {
+    return <UnauthorizedPage/>;
+  } 
+  if (error) {
+    return <ErrorPage/>;
+  }
   return (
     <>
     <Header/>

@@ -4,7 +4,7 @@ import { Link } from 'react-router-dom'
 import styles from "./cardScroller.module.css"
 import { ChevronLeft, ChevronRight } from "lucide-react";
 import { useRef } from 'react'
-const CardScroller = () => {
+const CardScroller = (data) => {
   const scrollRef = useRef(null);
 
   const scroll = (direction) => {
@@ -17,7 +17,7 @@ const CardScroller = () => {
   };
   return (
     <div className='relative'>
-      <div className='relative my-20 mx-14 bg-[#807878] h-[320px]'>
+      <div className='relative my-20 mx-14 bg-[#2f2d2d] h-[320px]'>
         <button
                   onClick={() => scroll("left")}
                   className="absolute left-2 top-[50%] transform -translate-y-1/2 z-10 bg-black bg-opacity-50 p-2 rounded-full hover:bg-opacity-80">

@@ -1,7 +1,7 @@
 import React, { useContext } from 'react'
 import Header from "../components/header/Header"
 import { useState, useEffect  } from "react";
-import Button from '../components/button';
+import Button from '../components/buttons/Button';
 import Features from '../components/Features/Features';
 import { Link } from 'react-router-dom';
 import { UserContext } from '../context/UserContext';
@@ -9,23 +9,6 @@ import { ChangeUserInfo } from '../API/UserAPI';
 const Settings = () => {
   const {user, setUser} = useContext(UserContext);
   const [error, setError] = useState(null);
-  async function DelUser(){
-    const res = await fetch(`/users/${user.id}`, {
-      method: "DELETE",
-      credentials: "include",
-      headers: {
-        "Content-Type": "application/json",
-        "Accept": "application/json"
-      },
-      body: JSON.stringify({
-        id: user.id
-      })
-    });
-    if (res.ok) {
-      window.location.href = "/";
-    } 
-  }
-  
   
   return (
     <>

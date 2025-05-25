@@ -2,7 +2,7 @@ import styles from "./header.module.css";
 import lkpic from "../../assets/pictures/lk.png"
 import logopic from "../../assets/pictures/logo1.png"
 import { Link } from "react-router-dom";
-import Button from "../button";
+import Button from "../buttons/Button";
 import { useContext } from "react";
 import { UserContext } from "../../context/UserContext";
 function Header() {

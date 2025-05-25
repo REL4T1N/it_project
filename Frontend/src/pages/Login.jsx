@@ -1,4 +1,4 @@
-import Button from "../components/button"
+import Button from "../components/buttons/Button"
 import { Link } from "react-router-dom"
 import styles from "../components/header/header.module.css";
 import logopic from "../assets/pictures/logo1.png"
@@ -24,7 +24,6 @@ const login = () => {
     e.preventDefault();
     try{
       await UserLogin(loginForm);
-      await fetchUser(setUser, setError);
       navigate('/');
     }
     catch (err){
@@ -43,11 +42,11 @@ const login = () => {
             <input type="email" name="email" required onChange={HandlerChange} className="p-2 border mb-4 w-[90%] mx-6 rounded-xl bg-[#333333] border-[#98a116] text-[#d1e349]"></input>
             <label class="block mb-2 text-[#d1e349] font-[Montserrat] ml-10">Пароль:</label>
             <input type="password" name="password" required  onChange={HandlerChange} className="p-2 border mb-4 w-[90%] mx-6 rounded-xl bg-[#333333] border-[#98a116]"></input>
-          <div className="flex w-[560px] px-10 py-[30px]">
+          <div className="flex w-[560px] px-10 pt-[20px] pb-0">
             <Button title="Войти" type='submit'></Button>
           </div>
         </form>
-        <p>{error}</p>
+        <p className="text-center text-[#d1e349]">{error}</p>
         <div className="flex flex-row items-center justify-center">
           <p className={`text-[#d1e349] text-center text-sm mr-1 font-[Montserrat]`}>У вас еще нет аккаунта?</p>
           <Link to="/register"><p className={`${styles.glow} text-center text-l underline`}>Зарегистрируйтесь!</p></Link>

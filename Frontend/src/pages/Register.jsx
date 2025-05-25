@@ -1,4 +1,4 @@
-import Button from "../components/button"
+import Button from "../components/buttons/Button"
 import { Link } from "react-router-dom"
 import styles from "../components/header/header.module.css";
 import logopic from "../assets/pictures/logo1.png"
@@ -26,8 +26,7 @@ const Register = () => {
     e.preventDefault();
     try{
       await UserRegistration(Form); // Прокидывать ошибка до сюда
-      await fetchUser(setUser,setError);
-      navigate('/');
+      navigate('/choose_rec');
     }
     catch(error){
         setMessage(error.message);

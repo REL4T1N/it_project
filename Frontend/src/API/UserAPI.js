@@ -50,7 +50,7 @@ export async function GetFilmData(movie_id, setFilmData){
         setFilmData(FilmData);
     }
     catch (e){
-        throw Error(e.message.detail);
+        throw Error(e.message);
     }
 }
 export async function GetReviewData(movie_id, setReviewData){
@@ -59,14 +59,60 @@ export async function GetReviewData(movie_id, setReviewData){
         setReviewData(Review);
     }
     catch (e){
-        throw Error(e.message.detail)
+        throw Error(e.message)
     }
 }
-export async function SendReviewData(data, movie_id, setError){
+export async function SendReviewData(data, movie_id){
     try {
         const Review = await fetchWrapper(`/api/reviews/${movie_id}/me`, {method:'POST', body: data});
     }
     catch (e){
-        setError(e)
+        throw Error(e.message)
+    }
+}
+export async function GetTable(movie_id, setIsTable, table){
+    try {
+        const IsTable = await fetchWrapper(`/api/tables/${movie_id}/${table}`);
+        console.log(IsTable.message);
+        if (IsTable.message === 'Фильма нет в избранном' 
+            || IsTable.message === 'Фильма нет в категории "Просмотернно"' 
+            || IsTable.message === 'Фильма нет в категории "Буду смотреть"'){
+            setIsTable(false)
+        } else {
+            setIsTable(true)
+        }
+    }
+    catch (e){
+        throw Error(e.message)
+    }
+}
+export async function MakeTable(movie_id, table, state){
+    try {
+        if (!state){
+            const response = await fetchWrapper(`/api/tables/${movie_id}/${table}`, {method:'POST'});
+        } else {
+            const response = await fetchWrapper(`/api/tables/${movie_id}/${table}`, {method:'DELETE'});
+        }
+    }
+    catch (e){
+        throw Error(e.message)
+    }
+}
+export async function GetRecomendationData(setGenres){
+    try {
+        const Genres = await fetchWrapper(`/api/recommendations/choose_genres`);
+        return setGenres(Genres);
+    }
+    catch (e){
+        throw Error(e.message)
+    }
+}
+export async function SendRecomendationData(selectedGenres, user_id){
+    try {
+        const response = await fetchWrapper(`/api/recommendations/me/genres?user_id=${user_id}`,{method:"POST", body:{genres : selectedGenres}});
+        return response;
+    }
+    catch (e){
+        throw Error(e.message)
     }
 }
