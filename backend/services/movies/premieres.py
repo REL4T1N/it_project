@@ -5,7 +5,7 @@ from sqlalchemy.orm import Session
 
 from .movie_logic import getMovieInfo
 from ...schemas.movie import ListMovieInfo, MovieInfo
-from .giga import generate_extended_description
+from .giga import generate_summary_gigachat
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -125,7 +125,7 @@ def moreMovieDescription(text: str) -> str:
 def get_top_cinema(db: Session) -> MovieInfo:
     movie = searchTopCinemaMovie()
     all_movie = getMovieInfo(kp_id=movie["id"], db=db, schema_type=MovieInfo)
-    all_movie.shortDescription = generate_extended_description(all_movie)
+    all_movie.shortDescription = generate_summary_gigachat(all_movie)
     return all_movie
 
 

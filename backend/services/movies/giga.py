@@ -1,4 +1,5 @@
 import os
+import re
 from dotenv import load_dotenv
 from langchain_core.messages import HumanMessage, SystemMessage
 from langchain_gigachat.chat_models import GigaChat
@@ -185,3 +186,30 @@ def recommend_movies(user_genres, user_liked_movies) -> str:
     return response.content.strip()
 
 
+def generate_summary_gigachat(movie: MovieInfo):
+    country_str = get_names(movie.countries)
+    genre_str = get_names(movie.genres)
+    SYSTEM_PROMPT = (
+        f"Название: {movie.name}\n"
+        f"Год: {movie.year}\n"
+        f"Страны: {genre_str}\n"
+        f"Жанры: {country_str}\n"
+        f"Описание: {movie.description}\n"
+        f"Возрастной рейтинг: {movie.ageRating}+\n\n"
+        f"Сгенерируй, пожалуйста, краткое содержание сюжета этого фильма. "
+        f"Сделай его интересным, логичным и подробным. НУЖНО ТОЛЬКО СОДЕРЖАНИЕ, БЕЗ ДОПОЛНИТЕЛЬНОЙ ИНФОРМАЦИИ ПО ФИЛЬМУ. "
+        f"Пиши только краткое содержание, без названий фильма, года выпуска, страны, жанров, описания и возрастного рейтинга"
+    )
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT),
+    ]
+    response = giga.invoke(messages)
+    return remove_markdown(response.content.strip())
+
+def remove_markdown(text):
+    text = re.sub(r'\*\*(.*?)\*\*', r'\1', text)  # **жирный**
+    text = re.sub(r'\*(.*?)\*', r'\1', text)      # *курсив*
+    text = re.sub(r'_([^_]+)_', r'\1', text)      # _курсив_
+    text = re.sub(r'^#+\s', '', text, flags=re.MULTILINE)  # заголовки
+    text = re.sub(r'^>\s', '', text, flags=re.MULTILINE)   # цитаты
+    return text.strip()
