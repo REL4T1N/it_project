@@ -1,0 +1,317 @@
+import requests
+import os 
+from dotenv import load_dotenv
+from sqlalchemy.orm import Session
+
+from .movie_logic import getMovieInfo
+from ...schemas.movie import ListMovieInfo, MovieInfo
+from .giga import generate_extended_description
+
+dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
+load_dotenv(dotenv_path=dotenv_path)
+
+API_token = os.getenv("API_token")
+headers = {"X-API-KEY": API_token, 
+           "Accept": "application/json"}
+
+
+def calculate_bayesian_rating(rating: float, votes: int, m: float, C: float) -> float:
+    return (votes * rating + m * C) / (votes + m)
+
+
+def bayesianRating(movies: list[dict]) -> list[dict]:
+    C = 7.0
+    M = 1000
+
+    ratings = [movie["rating"]["kp"] for movie in movies]
+    if ratings:
+        C = sum(ratings) / len(ratings)
+    for movie in movies:
+        movie["bayesian_rating"] = calculate_bayesian_rating(
+            rating=movie["rating"]["kp"],
+            votes=movie["votes"]["kp"],
+            m=M,
+            C=C
+        )
+    movies.sort(key=lambda x: x["bayesian_rating"], reverse=True)
+    return movies
+
+
+def searchMoviesInCinema(del_id: int | None = None):
+    url = "https://api.kinopoisk.dev/v1.4/movie"
+    params = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "rating", "votes", "ticketsOnSale",
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "rating.kp",
+            "genres.name", "countries.name", "ticketsOnSale",
+        ],
+        "sortField": ["rating.kp", "votes.kp"],
+        "sortType": ["-1", "-1"], # -1 убывание, 1 возростание
+        "type": "movie",
+        "ticketsOnSale": ["true"],
+        "lists": [],
+    }
+    if del_id is not None:
+        params["id"] = [f"!{str(del_id)}"]
+
+    response = requests.get(url=url, params=params, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("docs", [])
+    
+
+def searchMoviesPlannedToWatch():
+    url = "https://api.kinopoisk.dev/v1.4/movie"
+    params = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "year", "votes", "lists",  
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "votes.await", 
+            "genres.name", "countries.name", "lists",
+        ],
+        "sortField": ["votes.await",],
+        "sortType": ["-1",], # -1 убывание, 1 возростание
+        "type": "movie",
+        "lists": ["planned-to-watch-films"],
+    }
+
+    response = requests.get(url=url, params=params, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("docs", [])
+    
+
+def searchTopCinemaMovie():
+    url = "https://api.kinopoisk.dev/v1.4/movie"
+    params = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "year", "ageRating", "rating",
+            "votes", "genres", "countries", "poster", "lists", 
+            "ticketsOnSale"
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "rating.kp",
+            "votes.kp", "genres.name", "countries.name",
+            "ticketsOnSale"
+        ],
+        "sortField": ["rating.kp", "votes.kp"],
+        "sortType": ["-1", "-1"], # -1 убывание, 1 возростание
+        "type": "movie",
+        "year": ["2025"],
+        "ticketsOnSale": ["true"],
+        "lists": [],
+    }
+
+    response = requests.get(url=url, params=params, headers=headers)
+    if response.status_code == 200:
+        data = response.json()
+        movies = bayesianRating(movies=data.get("docs", []))
+        return movies[0]
+    
+
+def moreMovieDescription(text: str) -> str:
+    return text
+
+
+def kinopoisk_to_list_movie_info(movie: dict) -> dict:
+    return {
+        "movie_id": movie["id"],
+        "kp_id": movie["id"],
+        "name": movie.get("name"),
+        "year": movie.get("year"),
+        "rating_kp": movie.get("rating", {}).get("kp", 0.0),
+        "length": movie.get("movieLength"),
+        "ageRating": movie.get("ageRating"),
+        "poster": movie.get("poster", {}).get("url") if movie.get("poster") else None,
+        "genres": [g['name'] for g in movie.get("genres", [])],
+        "countries": [c['name'] for c in movie.get("countries", [])],
+    }
+
+
+def get_top_cinema(db: Session) -> MovieInfo:
+    movie = searchTopCinemaMovie()
+    all_movie = getMovieInfo(kp_id=movie["id"], db=db, schema_type=MovieInfo)
+    all_movie.description = moreMovieDescription(all_movie.description)
+    return all_movie
+
+
+def get_cinema(db: Session, exclude_top: bool = False, count: int = 30) -> list[ListMovieInfo]:
+    del_id = None
+    if exclude_top:
+        top_movie = get_top_cinema(db)
+        del_id = top_movie.movie_id
+    movies = searchMoviesInCinema(del_id=del_id)
+    return [getMovieInfo(kp_id=movie["id"], db=db, schema_type=ListMovieInfo) for movie in movies][:count]
+
+
+def get_planned_movies(db: Session, count: int = 30) -> list[ListMovieInfo]:
+    movies = searchMoviesPlannedToWatch()
+    return [getMovieInfo(kp_id=movie["id"], db=db, schema_type=ListMovieInfo) for movie in movies][:count]
+
+
+def test():
+    url = "https://api.kinopoisk.dev/v1.4/movie"
+    # Заготовка
+    params = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "year", "ageRating", "rating",
+            "votes", "genres", "countries", "poster", "lists", 
+            "ticketsOnSale"
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "rating.kp",
+            "votes.kp", "genres.name", "countries.name",
+            "ticketsOnSale"
+        ],
+        "sortField": ["rating.kp", "votes.kp"],
+        "sortType": ["-1", "-1"], # -1 убывание, 1 возростание
+        "type": "movie",
+        "ticketsOnSale": ["false"],
+        "lists": [],
+    }
+
+    # топ фильмов которые сейчас в кино
+    params1 = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "rating", "votes", "ticketsOnSale",
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "rating.kp",
+            "genres.name", "countries.name", "ticketsOnSale",
+        ],
+        "sortField": ["rating.kp", "votes.kp"],
+        "sortType": ["-1", "-1"], # -1 убывание, 1 возростание
+        "type": "movie",
+        "ticketsOnSale": ["true"],
+        "lists": [],
+    }
+
+    # топ фильмов в ожидаемом
+    params2 = {
+        "page": 1,
+        "limit": 100,
+        "selectFields": [
+            "id", "name", "type", "year", "votes", "lists",  
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "votes.await", 
+            "genres.name", "countries.name", "lists",
+        ],
+        "sortField": ["votes.await",],
+        "sortType": ["-1",], # -1 убывание, 1 возростание
+        "type": "movie",
+        "lists": ["planned-to-watch-films"],
+    }
+
+    # Топ среди фильмов в кино этого года (1 фильм) 
+    # Нужно получить 100 и отсортировать по баесовскому рейтингу
+    params3 = {
+        "page": 1,
+        "limit": 1,
+        "selectFields": [
+            "id", "name", "type", "year", "ageRating", "rating",
+            "votes", "genres", "countries", "poster", "lists", 
+            "ticketsOnSale"
+        ],
+        "notNullFields": [
+            "id", "name", "type", "year", "ageRating", "rating.kp",
+            "votes.kp", "genres.name", "countries.name",
+            "ticketsOnSale"
+        ],
+        "sortField": ["rating.kp", "votes.kp"],
+        "sortType": ["-1", "-1"], # -1 убывание, 1 возростание
+        "type": "movie",
+        "year": ["2025"],
+        "ticketsOnSale": ["true"],
+        "lists": [],
+    }
+    response = requests.get(url=url, params=params3, headers=headers)
+    print(response.status_code)
+    if response.status_code == 200:
+        data = response.json()
+        return data.get("docs", [])
+    
+
+# print(searchTopCinemaMovie())
+# print(searchMoviesInCinema(5427621))
+
+
+# def test1():
+#     url = "https://api.kinopoisk.dev/v1.4/movie"
+#     params = {
+#               "limit": 100,
+#               "page": 1,
+#               "selectFields": ["id", "name", "type", "year", "ageRating","rating", 
+#                                "votes", "genres", "countries", "poster", "ticketsOnSale"
+#                                ],
+#               "notNullFields": ["id", "name", "type", "year", "ageRating", "rating.kp", 
+#                                 "votes.kp", "genres.name", "countries.name", "ticketsOnSale"
+#                                ],
+#               "sortField": ["rating.kp", "votes.kp"],
+#               "sortType": ["-1", "-1"],
+#               "type": "movie",
+#               "ticketsOnSale": ["true"],
+#               }
+#     url = "https://api.kinopoisk.dev/v1.4/movie"
+
+#     response = requests.get(url=url, params=params, headers=headers)
+#     if response.status_code == 200:
+#         data = response.json()
+#         # return data
+#         return data.get("docs", [])
+    
+
+# def test2(db: Session, count: int = 10):
+
+#     movies = test1()
+#     all_movies = []
+#     for movie in movies:
+#         kp_id = movie["id"]
+#         all_movies.append(getMovieInfo(kp_id=kp_id, db=db, schema_type=ListMovieInfo))
+
+#     all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
+#     result = all_movies[:count]
+
+#     return result
+
+# def test3(text: str):
+#     return text
+
+# def test4(db: Session):
+#     url = "https://api.kinopoisk.dev/v1.4/movie"
+#     params = {
+#             "limit": 1,
+#             "page": 1,
+#             "selectFields": ["id", "name", "type", "year", "ageRating","rating", 
+#                              "votes", "genres", "countries", "poster", "ticketsOnSale", "lists"],
+#             "notNullFields": ["id", "name", "type", "year", "ageRating", 
+#                               "votes.await", "genres.name", "countries.name", "ticketsOnSale", "lists"],
+#             "sortField": ["votes.await", "rating.kp"],
+#             "sortType": ["-1", "-1"],
+#             "type": "movie",
+#             "ticketsOnSale": ["true"],
+#             "lists": ["planned-to-watch-films"]
+#         }
+
+#     response = requests.get(url=url, params=params, headers=headers)
+#     if response.status_code == 200:
+#         data = response.json()
+#         # return data
+#         movie = getMovieInfo(kp_id=data.get("docs", []).get("id"), db=db, schema_type=MovieInfo)
+#         movie.description = test3(text=movie.description)
+#         return movie
+
+# print(test4())

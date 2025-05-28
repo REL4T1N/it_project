@@ -6,3 +6,4 @@ apscheduler
 alembic
 python-dotenv
 passlib[bcrypt]
+langchain-gigachat

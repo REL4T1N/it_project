@@ -8,6 +8,7 @@ from ...services.movies.movie_logic import getMovieInfo
 from ...services.movies.top_movies_loader import getTopMovies
 from ...services.errors.movie import MovieNotFound, Unauthorized, Forbidden
 from ...schemas.movie import MovieInfo, ListMovieInfo
+from ...services.movies.premieres import get_cinema, get_planned_movies, get_top_cinema
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -38,8 +39,60 @@ def handle_service_exceptions(func):
     return wrapper
 
 
+@movie_router.get("/top_cinema_movie", response_model=MovieInfo)
+async def getTopCinemaMovieRightNow(
+    db: Session = Depends(get_db)
+) -> MovieInfo:
+    if not (movie := get_top_cinema(db=db)):
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Фильм не найден"
+        )
+    return movie
+
+
+@movie_router.get("/cinema_movies", response_model=list[ListMovieInfo])
+async def getCinemaMovies(
+    count: Annotated[
+        int, Query(
+            ge=9,
+            le=51,
+            example=20
+        )
+    ] = 30,
+    db: Session = Depends(get_db),
+    start_page: bool = False,
+) -> list[ListMovieInfo]:
+    movies = get_cinema(db=db, exclude_top=start_page, count=count)
+    if not movies:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Фильмы не найдены"
+        )
+    return movies[:count]
+
+
+@movie_router.get("/planned_movies", response_model=list[ListMovieInfo])
+async def getPlannedMovies(
+    count: Annotated[
+        int, Query(
+            ge=9,
+            le=51,
+            example=20
+        )
+    ] = 30,
+    db: Session = Depends(get_db),
+) -> list[ListMovieInfo]:
+    movies = get_planned_movies(db=db, count=count)
+    if not movies:
+        raise HTTPException(
+            status_code=status.HTTP_404_NOT_FOUND,
+            detail="Фильмы не найдены"
+        )
+    return movies[:count]
+
+
 @movie_router.get("/{movie_id}", response_model=MovieInfo)
-# @handle_service_exceptions
 async def get_movie(
     movie_id: int, 
     db: Session = Depends(get_db)
@@ -51,7 +104,6 @@ async def get_movie(
 
 
 @movie_router.get("/top/", response_model=list[ListMovieInfo])
-# @handle_service_exceptions
 async def get_top(
         count: Annotated[
         int, 
