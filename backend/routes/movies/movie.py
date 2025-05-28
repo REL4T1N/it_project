@@ -9,6 +9,7 @@ from ...services.movies.top_movies_loader import getTopMovies
 from ...services.errors.movie import MovieNotFound, Unauthorized, Forbidden
 from ...schemas.movie import MovieInfo, ListMovieInfo
 from ...services.movies.premieres import get_cinema, get_planned_movies, get_top_cinema
+from ...services.movies.giga import generate_extended_description
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -100,7 +101,9 @@ async def get_movie(
     """
     Get full movie information by Kinopoisk ID
     """
-    return getMovieInfo(kp_id=movie_id, db=db, schema_type=MovieInfo)
+    movie = getMovieInfo(kp_id=movie_id, db=db, schema_type=MovieInfo)
+    movie.description = generate_extended_description(movie)
+    return movie
 
 
 @movie_router.get("/top/", response_model=list[ListMovieInfo])
