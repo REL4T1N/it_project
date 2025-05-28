@@ -102,7 +102,7 @@ async def get_movie(
     Get full movie information by Kinopoisk ID
     """
     movie = getMovieInfo(kp_id=movie_id, db=db, schema_type=MovieInfo)
-    movie.description = generate_extended_description(movie)
+    movie.shortDescription = generate_extended_description(movie)
     return movie
 
 

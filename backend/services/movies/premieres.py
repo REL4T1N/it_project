@@ -125,7 +125,7 @@ def moreMovieDescription(text: str) -> str:
 def get_top_cinema(db: Session) -> MovieInfo:
     movie = searchTopCinemaMovie()
     all_movie = getMovieInfo(kp_id=movie["id"], db=db, schema_type=MovieInfo)
-    all_movie.description = generate_extended_description(all_movie)
+    all_movie.shortDescription = generate_extended_description(all_movie)
     return all_movie
 
 
