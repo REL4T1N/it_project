@@ -1,14 +1,15 @@
 from fastapi import APIRouter, status, HTTPException, Depends, Response, Query
 from sqlalchemy.orm import Session
-from typing import Annotated
+from typing import Annotated, Optional
 
 from ...database import get_db
 from ...services.movies.movie_logic import getMovieInfo
 from ...services.movies.top_movies_loader import getTopMovies
 from ...services.errors.movie import MovieNotFound, Unauthorized, Forbidden
-from ...schemas.movie import MovieInfo, ListMovieInfo
+from ...schemas.movie import MovieInfo, ListMovieInfo, FindMovie
 from ...services.movies.premieres import get_cinema, get_planned_movies, get_top_cinema
 from ...services.movies.giga import generate_summary_gigachat
+from ...services.movies.find_movie import findMovie
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])
 
@@ -127,3 +128,39 @@ async def get_top(
             detail="No movies found"
         )
     return movies
+
+
+@movie_router.get("/find_movies/", response_model=list[ListMovieInfo])
+async def getFindMovies(
+    movie_name: Optional[str] = Query(None, description="Название фильма"),
+    year_start: Optional[int] = Query(None, ge=1850, le=2100, description="Начальный год выпуска"),
+    year_end: Optional[int] = Query(None, ge=1850, le=2100, description="Конечный год выпуска"),
+    rating_kp_start: Optional[float] = Query(None, ge=0, le=10, description="Минимальный рейтинг КП"),
+    rating_kp_end: Optional[float] = Query(None, ge=0, le=10, description="Максимальный рейтинг КП"),
+    votes_start: Optional[int] = Query(None, ge=0, le=10_000_000, description="Минимальное количество голосов"),
+    votes_end: Optional[int] = Query(None, ge=0, le=10_000_000, description="Максимальное количество голосов"),
+    length_min: Optional[int] = Query(None, ge=0, le=500_000, description="Минимальная длительность (мин)"),
+    length_max: Optional[int] = Query(None, ge=0, le=500_000, description="Максимальная длительность (мин)"),
+    ageRating_min: Optional[int] = Query(None, ge=0, le=115, description="Минимальный возрастной рейтинг"),
+    ageRating_max: Optional[int] = Query(None, ge=0, le=115, description="Максимальный возрастной рейтинг"),
+    genres: Optional[list[str]] = Query(None, description="Жанры"),
+    countries: Optional[list[str]] = Query(None, description="Страны"),
+    db: Session = Depends(get_db)
+) -> list[ListMovieInfo]:
+
+    find_settings = FindMovie(
+        movie_name=movie_name,
+        year_start=year_start,
+        year_end=year_end,
+        rating_kp_start=rating_kp_start,
+        rating_kp_end=rating_kp_end,
+        votes_start=votes_start,
+        votes_end=votes_end,
+        length_min=length_min,
+        length_max=length_max,
+        ageRating_min=ageRating_min,
+        ageRating_max=ageRating_max,
+        genres=genres,
+        countries=countries
+    )
+    return findMovie(find_settings, db=db)

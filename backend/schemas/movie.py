@@ -64,3 +64,19 @@ class RecMovieInfo(BaseModel):
 
 class UpdateGenresRequest(BaseModel):
     genres: list[str]
+
+
+class FindMovie(BaseModel):
+    movie_name: Optional[str] = None
+    year_start: Optional[int] = Field(ge=1850, le=2100, default=None)
+    year_end: Optional[int] = Field(ge=1850, le=2100, default=None)
+    rating_kp_start: Optional[int] = Field(ge=0, le=10, default=None)
+    rating_kp_end: Optional[int] = Field(ge=0, le=10, default=None)
+    votes_start: Optional[int] = Field(default=None, ge=0, le=10000000)
+    votes_end: Optional[int] = Field(default=None, ge=0, le=10000000)
+    length_min: Optional[int] = Field(default=None, ge=0, le=500000)
+    length_max: Optional[int] = Field(default=None, ge=0, le=500000)
+    ageRating_min: Optional[int] = Field(default=None, ge=0, le=115)
+    ageRating_max: Optional[int] = Field(default=None, ge=0, le=115)
+    genres: Optional[list[str]] = Field(None)
+    countries: Optional[list[str]] = Field(None)
