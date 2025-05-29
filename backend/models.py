@@ -107,6 +107,10 @@ class Review(Base):
     user = relationship("User", back_populates="reviews")
     movie = relationship("Movie", back_populates="reviews")
 
+    @property
+    def username(self):
+        return self.user.username if self.user else None
+
 
 class Genre(Base):
     __tablename__ = "genres"

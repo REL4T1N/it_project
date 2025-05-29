@@ -4,6 +4,7 @@ from typing import Optional
 
 class ReviewResponse(BaseModel):
     user_id: int
+    username: str
     movie_id: int = Field(alias="kp_id")
     rating: int 
     text: Optional[str] = None

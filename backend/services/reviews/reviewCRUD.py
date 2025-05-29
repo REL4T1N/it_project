@@ -6,7 +6,8 @@ from ...schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
 from ..errors.review import ReviewNotFound, ReviewAlreadyExist, ReviewRatingError
 
 def search_review_data(user_id: int, kp_id: int, db: Session) -> Review | None:
-    return db.query(Review).filter(Review.user_id == user_id, Review.kp_id == kp_id).first()
+    review = db.query(Review).filter(Review.user_id == user_id, Review.kp_id == kp_id).first()
+    return review
 
 
 def add_review(user_id: int, kp_id: int, review_data: ReviewCreate, db: Session) -> ReviewResponse:
