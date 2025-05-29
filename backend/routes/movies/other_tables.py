@@ -81,13 +81,13 @@ async def postMovieToTable(
             return {"message": "Фильма не добавлен в избранное"}
         elif table_name == "watched_movies":
             if check := addMovieToTable(WatchedMovies, user_id, movie_id, db):
-                if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
-                    return {"message": 'Фильм добавлен в категорию "Просмотренно"'}
+                # if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
+                return {"message": 'Фильм добавлен в категорию "Просмотренно"'}
             return {"message": 'Фильма не добавлен в категорию "Просмотренно"'}
         elif table_name == "watch_list_movies":
             if check := addMovieToTable(WatchList, user_id, movie_id, db):
-                if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
-                    return {"message": 'Фильм добавлен в категорию "Буду смотреть"'}
+                # if updateUserSimilarMovies(user_id=user_id, kp_id=movie_id, db=db):
+                return {"message": 'Фильм добавлен в категорию "Буду смотреть"'}
             return {"message": 'Фильма не добавлен в категорию "Буду смотреть"'}    
         else:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
@@ -107,7 +107,6 @@ async def deleteMovieToTable(
     movie_id: int,
     table_name: str,
     user_id: Optional[int] = Cookie(default=None, alias="user_id"),
-    # user_id: int,
     db: Session = Depends(get_db)
 ):
     if user_id is None:

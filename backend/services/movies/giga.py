@@ -79,3 +79,21 @@ def remove_markdown(text):
     text = re.sub(r'^#+\s', '', text, flags=re.MULTILINE)  # заголовки
     text = re.sub(r'^>\s', '', text, flags=re.MULTILINE)   # цитаты
     return text.strip()
+
+def recommend_movies_gigachat(preferred_genres, liked_movies):
+    genres_text = get_names(preferred_genres)
+    liked_text = ', '.join(movie.name for movie in liked_movies)
+
+    SYSTEM_PROMPT = (
+        f"Пользователю нравятся жанры: {genres_text}.\n"
+        f"Ему уже понравились фильмы: {liked_text}.\n\n"
+        f"На основе этой информации составь список из как минимум 20 фильмов, "
+        f"которые могут ему понравиться. Укажи только названия фильмов, без описаний. "
+        f"Не используй Markdown или форматирование — просто список названий через запятую или с новой строки."
+    )
+
+    messages = [
+        SystemMessage(content=SYSTEM_PROMPT),
+    ]
+    response = giga.invoke(messages)
+    return remove_markdown(response.content.strip())

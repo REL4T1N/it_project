@@ -9,6 +9,8 @@ from ...schemas.movie import ListMovieInfo
 from ...services.users.users_service import get_user_by_id, update_user
 
 from .movie_logic import getMovieInfo
+from .giga import recommend_movies_gigachat
+from .fav_watch_and_ed import allUserMovieInTable
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -124,3 +126,28 @@ def addUserGenres(user_id: int, new_genres: list[str], db: Session) -> bool:
     if user := update_user(user_id=user_id, user_data=genres_data, db=db):
         return True
     return False
+
+
+def rec_by_llm(user_id: int, db: Session) -> list[ListMovieInfo]:
+    user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
+    user_genres = getTopGenres(user.genres)
+    lst = []
+    watched = allUserMovieInTable("watched_movies", user_id, db)
+    watch_list = allUserMovieInTable("watch_list_movies", user_id, db)
+    favorited = allUserMovieInTable("favorite_movies", user_id, db)
+    lst = watched + watch_list + favorited
+    recommended = recommend_movies_gigachat(user_genres, lst).split("\n")
+    recommended = [movie for movie in recommended if len(movie) > 1 and movie[0].isdigit()]
+    titles = [movie.split('. ', 1)[1].strip() for movie in recommended if '. ' in movie]
+    print(titles)
+    movies: list[ListMovieInfo] = []
+    for title in titles:
+        url = "https://api.kinopoisk.dev/v1.4/movie/search"
+        params = {"limit": 1, "page": 1, "query": title}
+        response = requests.get(url=url, params=params, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            movie = getMovieInfo(data.get("docs", [])[0]["id"], db=db, schema_type=ListMovieInfo)
+            movies.append(movie)
+
+    return movies
