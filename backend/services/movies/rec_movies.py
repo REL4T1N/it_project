@@ -3,11 +3,9 @@ import os
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-from ...models import User, Genre
-# from ..users_service import get_user_by_id, update_user
+from ...models import Genre
 from ...schemas.user import UserRecommendation, UpdateUser
 from ...schemas.movie import ListMovieInfo
-from ...services.errors.user import UserNotFound
 from ...services.users.users_service import get_user_by_id, update_user
 
 from .movie_logic import getMovieInfo
@@ -77,36 +75,31 @@ def progressiveRec(similar_movies: list[int], db: Session, N: int) -> list[ListM
 
 
 def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovieInfo]:
+    all_movies: list[ListMovieInfo] = []
     user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
-    if user.similar_movies is not None:
-        return progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
 
-    # Получаем топ-3 жанров и стран
+    if user.similar_movies is not None:
+        all_movies = progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
+        used_movie_ids = set(movie.kp_id for movie in all_movies)
+        if len(all_movies) >= N:
+            return all_movies
+    else:
+        used_movie_ids = set()
+
     user_genres = getTopGenres(user.genres)
     if not user_genres:
-        # написать функцию, которая отдаст просто фильмы из какого-нибудь случайного топа
         return []
-    movie_counts = calculateMovieCounts(top_3_genres=user_genres, total_movies=N)
+    movie_counts = calculateMovieCounts(top_3_genres=user_genres, total_movies=N-len(all_movies))
 
-    all_movies: list[ListMovieInfo] = []
-    used_movie_ids = set()
-
-    # Для каждого жанра выбираем страну с максимальным весом
     for genre, count in movie_counts.items():
-        # Берем страну с наибольшим весом
         movies = apiFilmList(limit=count, genre=genre)
         for movie in movies:
-            # if movie["id"] not in used_movie_ids:
-            #     all_movies.append(ListMovieInfo.model_validate(movie))
-            #     used_movie_ids.add(movie["id"])
             kp_id = movie["id"]
             if kp_id not in used_movie_ids:
-                # Всегда используем getMovieInfo — он сам всё решит
                 all_movies.append(getMovieInfo(kp_id=kp_id, db=db, schema_type=ListMovieInfo))
                 used_movie_ids.add(kp_id)
 
-    # Сортируем по рейтингу и выбираем топ-N
-    all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
+    # all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
     recommendations = all_movies[:N]
 
     return recommendations

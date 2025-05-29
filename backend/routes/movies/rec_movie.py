@@ -14,8 +14,7 @@ rec_router = APIRouter(prefix="/api/recommendations", tags=["Recommendations"])
 
 @rec_router.get("/me", response_model=list[ListMovieInfo])
 async def getUserRec(
-    user_id: int, #добавить cookie
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
     db: Session = Depends(get_db)
 ) -> list[ListMovieInfo]:
     if user_id is None:
@@ -37,9 +36,9 @@ async def getGenres(db: Session = Depends(get_db)):
 
 @rec_router.post("/me/genres")
 async def setUserGenres(
-    user_id: int, #добавить cookie
-    # user_id: Optional[int] = Cookie(default=None, alias="user_id"),
+    # user_id: int, #добавить cookie
     request: UpdateGenresRequest,
+    user_id: Optional[int] = Cookie(default=None, alias="user_id"),
     db: Session = Depends(get_db)
 ):
     if user_id is None:

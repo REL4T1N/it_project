@@ -1,7 +1,6 @@
 from fastapi import APIRouter, status, HTTPException, Depends, Response, Query
 from sqlalchemy.orm import Session
 from typing import Annotated
-from pydantic import BaseModel
 
 from ...database import get_db
 from ...services.movies.movie_logic import getMovieInfo
@@ -9,7 +8,7 @@ from ...services.movies.top_movies_loader import getTopMovies
 from ...services.errors.movie import MovieNotFound, Unauthorized, Forbidden
 from ...schemas.movie import MovieInfo, ListMovieInfo
 from ...services.movies.premieres import get_cinema, get_planned_movies, get_top_cinema
-from ...services.movies.giga import generate_extended_description, generate_summary_gigachat
+from ...services.movies.giga import generate_summary_gigachat
 
 movie_router = APIRouter(prefix="/api/movies", tags=["Movies"])
 

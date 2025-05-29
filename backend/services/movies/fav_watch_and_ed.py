@@ -1,13 +1,10 @@
 from sqlalchemy.orm import Session
 
-from ...database import Base
-from ...models import FavoriteList, WatchedMovies, WatchList
 from ...schemas.movie import ListMovieInfo
 from ...schemas.user import UpdateUser
 from ...services.users.users_service import get_user_data, update_user
 from ..errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
 from ..errors.user import UserNotFound
-# from ..users_service import get_user_data, update_user
 
 from .movie_repository import checkMovieInDB
 
