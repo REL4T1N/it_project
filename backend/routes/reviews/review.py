@@ -45,9 +45,7 @@ async def getMovieReviews(
 ) -> list[ReviewResponse]:
     try:   
         reviews = movie_reviews(kp_id=movie_id, exclude_user_id=user_id, db=db)
-        if not reviews:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Ревью не найдены для этого фильма")
+        return reviews
         
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
@@ -61,9 +59,7 @@ async def getUserReviews(
 ) -> list[ReviewResponse]:
     try:
         reviews = user_reviews(user_id=user_id, db=db)
-        if not reviews:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Ревью не найдены для этого пользователя")
+        return reviews
         
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
