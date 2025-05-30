@@ -7,6 +7,7 @@ from ...models import Genre
 from ...schemas.user import UserRecommendation, UpdateUser
 from ...schemas.movie import ListMovieInfo
 from ...services.users.users_service import get_user_by_id, update_user
+from ..errors.movie import GenresCountError
 
 from .movie_logic import getMovieInfo
 from .giga import recommend_movies_gigachat
@@ -101,9 +102,7 @@ def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovie
                 all_movies.append(getMovieInfo(kp_id=kp_id, db=db, schema_type=ListMovieInfo))
                 used_movie_ids.add(kp_id)
 
-    # all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
     recommendations = all_movies[:N]
-
     return recommendations
 
 
@@ -121,7 +120,9 @@ def addUserGenres(user_id: int, new_genres: list[str], db: Session) -> bool:
             output_genres[genre] = round(persentForOne, 2)
             if len(output_genres) == length_genres:
                 break
-    
+    else:
+        raise GenresCountError(f"Количество жанров {length_genres}, min=3, max=10")
+
     genres_data = UpdateUser(genres=output_genres)
     if user := update_user(user_id=user_id, user_data=genres_data, db=db):
         return True
@@ -131,16 +132,19 @@ def addUserGenres(user_id: int, new_genres: list[str], db: Session) -> bool:
 def rec_by_llm(user_id: int, db: Session) -> list[ListMovieInfo]:
     user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
     user_genres = getTopGenres(user.genres)
+
     lst = []
     watched = allUserMovieInTable("watched_movies", user_id, db)
     watch_list = allUserMovieInTable("watch_list_movies", user_id, db)
     favorited = allUserMovieInTable("favorite_movies", user_id, db)
     lst = watched + watch_list + favorited
+
     recommended = recommend_movies_gigachat(user_genres, lst).split("\n")
     recommended = [movie for movie in recommended if len(movie) > 1 and movie[0].isdigit()]
+    
     titles = [movie.split('. ', 1)[1].strip() for movie in recommended if '. ' in movie]
-    print(titles)
     movies: list[ListMovieInfo] = []
+    
     for title in titles:
         url = "https://api.kinopoisk.dev/v1.4/movie/search"
         params = {"limit": 1, "page": 1, "query": title}

@@ -10,8 +10,14 @@ class MovieNotFound(Exception):
 class MovieNotFoundInDB(Exception):
     pass
 
-class Unauthorized(Exception):
+class UnauthorizedKinoPoiskAPI(Exception):
     pass
 
-class Forbidden(Exception):
+class ForbiddenKinoPoiskAPI(Exception):
+    pass
+
+class GigaChatAnswerError(Exception):
+    pass
+
+class GenresCountError(Exception):
     pass

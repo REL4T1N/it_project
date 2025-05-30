@@ -122,17 +122,20 @@ def moreMovieDescription(text: str) -> str:
     return text
 
 
-def get_top_cinema(db: Session) -> MovieInfo:
+def get_top_cinema(db: Session, start_page: bool = True) -> MovieInfo:
     movie = searchTopCinemaMovie()
     all_movie = getMovieInfo(kp_id=movie["id"], db=db, schema_type=MovieInfo)
-    all_movie.shortDescription = generate_summary_gigachat(all_movie)
+    
+    if start_page == True:
+        all_movie.shortDescription = generate_summary_gigachat(all_movie)
+    
     return all_movie
 
 
 def get_cinema(db: Session, exclude_top: bool = False, count: int = 30) -> list[ListMovieInfo]:
     del_id = None
     if exclude_top:
-        top_movie = get_top_cinema(db)
+        top_movie = get_top_cinema(db, start_page=False)
         del_id = top_movie.movie_id
     movies = searchMoviesInCinema(del_id=del_id)
     return [getMovieInfo(kp_id=movie["id"], db=db, schema_type=ListMovieInfo) for movie in movies][:count]
