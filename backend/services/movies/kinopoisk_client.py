@@ -28,4 +28,4 @@ def getApiMovie(kp_id: int) -> dict | None:
     elif status == 404:
         raise MovieNotFound
     else: 
-        raise Exception
+        raise Exception(f"Unexpected status code {status}: {response.text}")
