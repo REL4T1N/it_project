@@ -23,7 +23,8 @@ def add_review(user_id: int, kp_id: int, review_data: ReviewCreate, db: Session)
             user_id=user_id,
             kp_id=kp_id,
             rating=review_data.rating,
-            text=review_data.text
+            text=review_data.text,
+            review_name=review_data.review_name,
         )
         db.add(new_review)
         db.commit()
@@ -40,6 +41,9 @@ def update_review(user_id: int, kp_id: int, db: Session, review_data: ReviewUpda
         review = search_review_data(user_id, kp_id, db)
         if review is None:
             raise ReviewNotFound
+        
+        if review_data.review_name is not None:
+            review.review_name = review_data.review_name
         
         if review_data.rating is not None:
             if (0 <= review_data.rating <= 10) == False:

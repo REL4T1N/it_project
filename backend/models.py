@@ -101,6 +101,7 @@ class Review(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     kp_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
+    review_name = Column(String(512), nullable=False)
     rating = Column(Integer, default=0)
     text = Column(String(4096))
 
