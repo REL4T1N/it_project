@@ -45,6 +45,8 @@ def deleteMovieFromTable(model_name, user_id: int, kp_id: int, db: Session) -> b
 def allUserMovieInTable(table_name: str, user_id: int, db: Session) -> list[ListMovieInfo]:
     try:
         user = get_user_data(user_id=user_id, db=db)
+        if table_name == "watch_list_movies":
+            table_name = "watch_list"
         movies = getattr(user, table_name, None) or [] 
 
         return [ListMovieInfo.model_validate(movie) for movie in movies]
