@@ -6,6 +6,7 @@ from dotenv import load_dotenv
 from .movie_logic import getMovieInfo
 
 from ...schemas.movie import FindMovie, ListMovieInfo
+from ..errors.movie import MovieNotFound, ForbiddenKinoPoiskAPI, UnauthorizedKinoPoiskAPI
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -29,10 +30,17 @@ def findMovieForName(movie_name: str) -> list[str]:
     url = "https://api.kinopoisk.dev/v1.4/movie/search"
     params = {"page": 1, "limit": 30, "query": movie_name}
     response = requests.get(url=url, params=params, headers=headers)
+    status = response.status_code
 
     if response.status_code == 200:
         movies = response.json().get("docs", [])
         return [str(movie["id"]) for movie in movies if "id" in movie]
+    elif status == 401:
+        raise UnauthorizedKinoPoiskAPI
+    elif status == 403:
+        raise ForbiddenKinoPoiskAPI
+    elif status == 404:
+        raise MovieNotFound
     return []
 
 
@@ -83,11 +91,19 @@ def findMovie(movie: FindMovie, db: Session):
     
     validated_movies: list[ListMovieInfo] = []
     response = requests.get(url=url, params=params, headers=headers)
-    print("Отправленный URL:", response.url)
+    # print("Отправленный URL:", response.url)
+    status = response.status_code
     if response.status_code == 200:
         movies = response.json().get("docs", [])
         for movie in movies:
             movie = getMovieInfo(movie["id"], db=db, schema_type=ListMovieInfo)
             validated_movies.append(movie)
+
+    elif status == 401:
+        raise UnauthorizedKinoPoiskAPI
+    elif status == 403:
+        raise ForbiddenKinoPoiskAPI
+    elif status == 404:
+        raise MovieNotFound
 
     return validated_movies
