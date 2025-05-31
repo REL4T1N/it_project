@@ -1,0 +1,9 @@
+fastapi[all]
+sqlalchemy
+email-validator
+requests
+apscheduler
+alembic
+python-dotenv
+passlib[bcrypt]
+langchain-gigachat
