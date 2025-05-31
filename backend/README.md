@@ -113,7 +113,6 @@ backend/
 │   └── util_password.py
 │
 ├── database.py
-├── film.json
 ├── main.py
 ├── models.py
 ├── README.md
