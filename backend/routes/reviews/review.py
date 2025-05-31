@@ -4,7 +4,7 @@ from typing import Optional
 
 from ...database import get_db
 from ...services.reviews.reviewCRUD import add_review, search_review_data, update_review, delete_review, movie_reviews, user_reviews
-from ...schemas.review import ReviewResponse, ReviewCreate, ReviewUpdate
+from ...schemas.review import ReviewResponse, ReviewCreate, ReviewUpdate, ReviewWithMovieInfoResponse
 from ...services.errors.review import ReviewAlreadyExist, ReviewNotFound, ReviewRatingError
 
 review_router = APIRouter(prefix="/api/reviews", tags=["Review"])
@@ -52,15 +52,14 @@ async def getMovieReviews(
                             detail=f"Непредвиденная ошибка {e}")
 
 
-@review_router.get("/users/{user_id}", response_model=list[ReviewResponse])
+@review_router.get("/users/{user_id}", response_model=list[ReviewWithMovieInfoResponse])
 async def getUserReviews(
     user_id: int,
     db: Session = Depends(get_db)
-) -> list[ReviewResponse]:
+) -> list[ReviewWithMovieInfoResponse]:
     try:
         reviews = user_reviews(user_id=user_id, db=db)
         return reviews
-        
     except Exception as e:
         raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
                             detail=f"Непредвиденная ошибка {e}")
