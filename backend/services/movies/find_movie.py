@@ -27,7 +27,7 @@ def make_range(start_pos: int | None, end_pos: int | None, min_digit: int, max_d
 
 def findMovieForName(movie_name: str) -> list[str]:
     url = "https://api.kinopoisk.dev/v1.4/movie/search"
-    params = {"page": 1, "limit": 50, "query": movie_name}
+    params = {"page": 1, "limit": 30, "query": movie_name}
     response = requests.get(url=url, params=params, headers=headers)
 
     if response.status_code == 200:
@@ -41,14 +41,14 @@ def findMovieWithoutName():
 
 
 def findMovie(movie: FindMovie, db: Session):
-    movie_ids = []
+    movies_ids = []
     if movie.movie_name is not None:
         movies_ids = findMovieForName(movie.movie_name)
     
     url = "https://api.kinopoisk.dev/v1.4/movie"
     params = {
         "page": 1,
-        "limit": 250,
+        "limit": 30,
         "selectFields": ["id"],
         "notNullFields": ["id"],
         "sortField": ["rating.kp", "votes.kp"],
@@ -83,6 +83,7 @@ def findMovie(movie: FindMovie, db: Session):
     
     validated_movies: list[ListMovieInfo] = []
     response = requests.get(url=url, params=params, headers=headers)
+    print("Отправленный URL:", response.url)
     if response.status_code == 200:
         movies = response.json().get("docs", [])
         for movie in movies:

@@ -222,10 +222,6 @@ async def getFindMovies(
         )
         
         res = findMovie(find_settings, db=db)
-        if not res:
-            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                                detail="Фильмы не найдены")
-        
         return res
         
     except UnauthorizedKinoPoiskAPI:
