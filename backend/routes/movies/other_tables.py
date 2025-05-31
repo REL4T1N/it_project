@@ -21,6 +21,10 @@ async def usersMovieInTable(
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Пользователь не авторизован")
     
+    if table_name not in ["favorite_movies", "watched_movies", "watch_list_movies"]:
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+                            detail="Не правильынй запрос, такой таблицы не существует")
+    
     try:
         return allUserMovieInTable(table_name, user_id, db)
 
