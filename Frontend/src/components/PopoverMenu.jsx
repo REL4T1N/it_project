@@ -36,7 +36,7 @@ const PopoverMenu = ({
       <button
         ref={btnRef}
         onClick={() => setIsOpen((open) => !open)}
-        className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition"
+        className="bg-[#1c1c1e] w-[50px] h-[50px] rounded-full hover:bg-[#2c2c2e] transition items-center justify-center flex "
       >
         <MoreHorizontal className="text-[#C6D459] w-6 h-6" />
       </button>
@@ -60,6 +60,7 @@ const PopoverMenu = ({
                 } else {
                   MakeTable(movie_id, "watch_list_movies", false);
                 }
+                console.log("watchList", watchList);
                 setIsWatchList((v) => !v);
               } catch (e) {
                 setError(e);
@@ -71,7 +72,6 @@ const PopoverMenu = ({
             />
             <span>Буду смотреть</span>
           </button>
-          {/* Кнопка "Просмотрено" */}
           <button
             className={`w-full py-3 rounded-xl flex items-center space-x-3 px-4 font-semibold transition
             ${

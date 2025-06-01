@@ -38,9 +38,6 @@ def get_user_by_id(user_id: int, db: Session, schema_type: Type[BaseModel]) -> B
                 user['similar_movies'] = None
 
     return schema_type.model_validate(user)
-    # if user := get_user_data(user_id=user_id, db=db):
-    #     return schema_type.model_validate(user) if user else None
-    # return None
 
 # Проверка существования пользователя по email или username
 def check_for_email_or_username(email: str, username: str, db: Session) -> UserResponse | None:

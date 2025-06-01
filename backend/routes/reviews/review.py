@@ -4,8 +4,9 @@ from typing import Optional
 
 from ...database import get_db
 from ...services.reviews.reviewCRUD import add_review, search_review_data, update_review, delete_review, movie_reviews, user_reviews
-from ...schemas.review import ReviewResponse, ReviewCreate, ReviewUpdate
+from ...schemas.review import ReviewResponse, ReviewCreate, ReviewUpdate, ReviewWithMovieInfoResponse
 from ...services.errors.review import ReviewAlreadyExist, ReviewNotFound, ReviewRatingError
+
 review_router = APIRouter(prefix="/api/reviews", tags=["Review"])
 
 
@@ -15,11 +16,25 @@ async def getReview(
     user_id: int = Cookie(default=None, alias="user_id"),
     db: Session = Depends(get_db)
 ) -> ReviewResponse:
-    review = search_review_data(user_id, movie_id, db)
-    if review is None:
-        raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
-                            detail="Отзыв не найден")
-    return ReviewResponse.model_validate(review)
+    try:
+        if user_id is None:
+            raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                                detail="Пользователь не авторизован")
+        review = search_review_data(user_id, movie_id, db)
+
+        if review.user_id != user_id:
+            raise HTTPException(status_code=status.HTTP_403_FORBIDDEN,
+                                detail="user_id не совпадают")
+
+        if review is None:
+            raise HTTPException(status_code=status.HTTP_404_NOT_FOUND,
+                                detail="Отзыв не найден")
+        
+        return ReviewResponse.model_validate(review)
+    
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непредвиденная ошибка {e}")
 
 
 @review_router.get("/movies/{movie_id}", response_model=list[ReviewResponse])
@@ -28,15 +43,26 @@ async def getMovieReviews(
     user_id: Optional[int] = Cookie(defaul=None, alias="user_id"),
     db: Session = Depends(get_db)
 ) -> list[ReviewResponse]:
-    return movie_reviews(kp_id=movie_id, exclude_user_id=user_id, db=db)
+    try:   
+        reviews = movie_reviews(kp_id=movie_id, exclude_user_id=user_id, db=db)
+        return reviews
+        
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непредвиденная ошибка {e}")
 
 
-@review_router.get("/users/{user_id}", response_model=list[ReviewResponse])
+@review_router.get("/users/{user_id}", response_model=list[ReviewWithMovieInfoResponse])
 async def getUserReviews(
     user_id: int,
     db: Session = Depends(get_db)
-) -> list[ReviewResponse]:
-    return user_reviews(user_id=user_id, db=db)
+) -> list[ReviewWithMovieInfoResponse]:
+    try:
+        reviews = user_reviews(user_id=user_id, db=db)
+        return reviews
+    except Exception as e:
+        raise HTTPException(status_code=status.HTTP_500_INTERNAL_SERVER_ERROR,
+                            detail=f"Непредвиденная ошибка {e}")
     
 
 @review_router.post("/{movie_id}/me", response_model=ReviewResponse)
@@ -49,6 +75,7 @@ async def createUserReview(
     if user_id is None:
         raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
                             detail="Пользователь не авторизован")
+    
     try:
         review = add_review(user_id=user_id, kp_id=movie_id, review_data=review_data, db=db)
         if review.user_id != user_id:
@@ -57,7 +84,7 @@ async def createUserReview(
         return review
     
     except ReviewAlreadyExist:
-        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST,
+        raise HTTPException(status_code=status.HTTP_409_CONFLICT,
                              detail="Отзыв уже существует")
     
     except ReviewRatingError:
@@ -76,6 +103,10 @@ async def updateUserReview(
     user_id: Optional[int] = Cookie(default=None, alias="user_id"),
     db: Session = Depends(get_db)
 ) -> ReviewResponse:
+    if user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Пользователь не авторизован")
+    
     try:
         review = update_review(user_id=user_id, kp_id=movie_id, review_data=review_data, db=db)
         if review.user_id != user_id:
@@ -102,6 +133,10 @@ async def deleteUserReview(
     user_id: Optional[int] = Cookie(default=None, alias="user_id"),
     db: Session = Depends(get_db)
 ) -> dict:
+    if user_id is None:
+        raise HTTPException(status_code=status.HTTP_401_UNAUTHORIZED,
+                            detail="Пользователь не авторизован")
+    
     try:
         review = delete_review(user_id=user_id, kp_id=movie_id, db=db)
         if review.user_id != user_id:

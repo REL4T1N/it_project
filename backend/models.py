@@ -101,11 +101,16 @@ class Review(Base):
 
     user_id = Column(Integer, ForeignKey("users.id"), primary_key=True)
     kp_id = Column(Integer, ForeignKey("movies.id"), primary_key=True)
+    review_name = Column(String(512), nullable=False)
     rating = Column(Integer, default=0)
     text = Column(String(4096))
 
     user = relationship("User", back_populates="reviews")
     movie = relationship("Movie", back_populates="reviews")
+
+    @property
+    def username(self):
+        return self.user.username if self.user else None
 
 
 class Genre(Base):

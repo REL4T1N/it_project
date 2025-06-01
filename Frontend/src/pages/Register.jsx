@@ -80,7 +80,7 @@ const Register = () => {
             <Button title="Зарегистрироваться" type="submit"></Button>
           </div>
         </form>
-        <p>{message}</p>
+        <p className="text-center text-[#d1e349]">{message}</p>
         <div className="flex flex-row items-center justify-center">
           <p
             className={`text-[#d1e349] text-center text-sm mr-1 font-[Montserrat]`}

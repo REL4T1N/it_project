@@ -2,7 +2,6 @@ import React, { useEffect, useState } from "react";
 import Header from "../components/header/Header";
 import styles from "../styles/filmpage.module.css";
 import { Link, useParams } from "react-router-dom";
-import { BookmarkPlus, MoreHorizontal } from "lucide-react";
 import { useContext } from "react";
 import { UserContext } from "../context/UserContext";
 import { MdRateReview } from "react-icons/md";
@@ -12,14 +11,16 @@ import {
   GetFilmData,
   GetReviewData,
   MakeTable,
-} from "../API/userAPI";
+} from "../API/UserAPI";
 import Review from "../components/review/Review";
 import UnauthorizedPage from "../components/UnathorizedPage";
 import ErrorPage from "../components/ErrorPage";
 import { FaRegHeart, FaHeart } from "react-icons/fa";
 import FavouriteButton from "../components/buttons/FavouriteButton";
 import PopoverMenu from "../components/PopoverMenu";
-import ActorCarousel from "../components/ActorCarousel";
+import LoadingPage from "./LoadingPage";
+import { Eye } from "lucide-react";
+import EyePopupButton from "../components/buttons/EyePopupButton";
 const FilmPage = () => {
   const { user, setUser } = useContext(UserContext);
   const reviewScrollref = useRef(null);
@@ -35,14 +36,16 @@ const FilmPage = () => {
   const [favourite, setIsFavourite] = useState(null);
   const [watched, setIsWatched] = useState(null);
   const [watchList, setIsWatchList] = useState(null);
+  const [popupOpen, setPopupOpen] = useState(false);
   useEffect(() => {
     async function fetchData() {
       try {
-        await GetFilmData(movie_id, setFilmData);
-        await GetReviewData(movie_id, setReviewData);
-        await GetTable(movie_id, setIsFavourite, "favorite_movies");
-        await GetTable(movie_id, setIsWatched, "watched_movies");
-        await GetTable(movie_id, setIsWatchList, "watch_list_movies");
+        Promise.all([
+          GetFilmData(movie_id, setFilmData),
+          GetReviewData(movie_id, setReviewData),
+          GetTable(movie_id, setIsFavourite, "favorite_movies"),
+          GetTable(movie_id, setIsWatched, "watched_movies"),
+          GetTable(movie_id, setIsWatchList, "watch_list_movies")]);
       } catch (e) {
         setError(e);
       }
@@ -51,17 +54,16 @@ const FilmPage = () => {
   }, []);
   if (!filmData) {
     return (
-      <div className="text-center text-xl py-12 text-gray-400">Загрузка...</div>
+      <LoadingPage/>
     );
   }
   if (user === null) return <UnauthorizedPage />;
   if (error) {
-    return <ErrorPage />;
+    return <ErrorPage err_code={e.status}/>;
   }
   return (
     <>
       <Header />
-      {console.log(filmData)}
       <div className="w-[1400px] bg-black place-self-center">
         <img
           src={filmData.poster}
@@ -74,12 +76,17 @@ const FilmPage = () => {
           {filmData.description}
         </p>
         <div className="flex px-16">
-          <div className="flex space-x-6 py-14">
+          <div className="flex space-x-6 py-10">
             <FavouriteButton
               movie_id={movie_id}
               favourite={favourite}
               setIsFavourite={setIsFavourite}
               setError={setError}
+            />
+            <EyePopupButton
+              text={filmData?.description}
+              setOpen={setPopupOpen}
+              open={popupOpen}
             />
             <PopoverMenu
               isWatched={watched}
@@ -89,7 +96,7 @@ const FilmPage = () => {
               movie_id={movie_id}
             />
             <div>
-              <div className="flex space-x-6 pl-64">
+              <div className="flex space-x-6 pl-40">
                 <div
                   id="rate"
                   className={`w-16 h-10 pl-7 place-content-center rounded-lg translate-y-[6px] pr-14`}
@@ -114,6 +121,13 @@ const FilmPage = () => {
             </div>
           </div>
         </div>
+        {popupOpen && (
+        <div className="w-full px-14">
+          <div className="bg-[#232323] text-[#DBF231] rounded-2xl px-10 py-8 shadow-xl text-sm font-[Montserrat] text-center z-20 max-w-[700px] w-full my-2 transition-all duration-300">
+            {filmData?.shortDescription}
+          </div>
+        </div>
+      )}
         <h2 className={`text-[#cfde5d] text-2xl px-16 pt-4 font-[Montserrat]`}>
           О фильме
         </h2>
@@ -164,7 +178,7 @@ const FilmPage = () => {
               )
               .map(({ label, value }) => (
                 <React.Fragment key={label}>
-                  <p className="text-[#9ba646] py">{label}</p>
+                  <p className="text-[#9ba646]">{label}</p>
                   <p className=" text-[#C6D459]">{value}</p>
                 </React.Fragment>
               ))}

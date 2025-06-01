@@ -13,3 +13,6 @@
     0 0 2px hsl(54, 90%, 50%);
   color: hsl(67, 57%, 49%);
 }
+.scrollbarhidden::-webkit-scrollbar {
+  display: none;                /* Chrome, Safari, Opera */
+}

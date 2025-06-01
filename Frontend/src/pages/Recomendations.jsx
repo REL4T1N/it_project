@@ -4,22 +4,10 @@ import { useEffect } from "react";
 import { useNavigate } from "react-router-dom";
 import { GetRecomendationData, SendRecomendationData } from "../API/userAPI";
 
-const genres = [
-  "Драма",
-  "Комедия",
-  "Боевик",
-  "Фантастика",
-  "Триллер",
-  "Ужасы",
-  "Мелодрама",
-  "Приключения",
-  "Анимация",
-  "Документальный",
-];
-
 const RecommendationsPage = () => {
   const { user, setUser } = useContext(UserContext);
   const [error, setError] = useState(null);
+  const [message, setMessage] = useState(null);
   const [genreData, setGenreData] = useState(null);
   const [selectedGenres, setSelectedGenres] = useState([]);
   const navigate = useNavigate();
@@ -37,7 +25,7 @@ const RecommendationsPage = () => {
         await SendRecomendationData(selectedGenres, user.id);
         navigate("/");
       } else {
-        throw new Error("Выберите от 3 до 10 жанров");
+        setMessage("Выберите от 3 до 10 жанров");
       }
     } catch (e) {
       setError(e.message);
@@ -53,6 +41,10 @@ const RecommendationsPage = () => {
     }
     fetchData();
   }, []);
+  if (error) {
+    console.log(error.message);
+    return <ErrorPage err_code={e.status}/>;
+  }
   return (
     <div className="min-h-screen flex items-center justify-center pt-7">
       <div className="w-[740px] bg-[#161616] rounded-3xl shadow-2xl border border-[#2c2c2e] p-10 flex flex-col items-center">
@@ -89,7 +81,7 @@ const RecommendationsPage = () => {
           </button>
         </form>
         {error && (
-          <p className="text-red-500 mt-4 text-center">Ошибка: {error}</p>
+          <p className="text-red-500 mt-4 text-center">={message}</p>
         )}
       </div>
     </div>

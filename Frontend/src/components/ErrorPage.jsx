@@ -1,52 +1,41 @@
-import React from "react";
-
-const ErrorPage = () => {
+import { Link } from "react-router-dom";
+import catImg from "../assets/okak-8.png";
+import Button from "./buttons/Button";
+const ErrorPage = (err_code) => {
   return (
-    <section className="min-h-screen bg-[#0f1116] flex items-center justify-center px-4">
-      {/* контейнер из двух колонок */}
-      <div className="grid md:grid-cols-2 gap-10 w-full max-w-5xl">
-        {/* левая карточка */}
-        <div className="relative bg-[#1a1d25] rounded-2xl p-10 text-white overflow-hidden">
-          {/* «водяной» 404 позади */}
-          <h1
-            className="absolute inset-0 flex items-center justify-center
-                       font-extrabold text-[22rem] leading-none
-                       text-[#2b2f39] select-none pointer-events-none
-                       opacity-10"
-          >
-            404
+    <section className="min-h-screen flex items-center justify-center px-4">
+      <div className="flex flex-row items-center w-full max-w-[1400px] gap-12">
+        <div className="relative bg-[#1A1A1A] rounded-2xl p-10 text-[#C6DE17] overflow-hidden flex-[2_2_0%] min-w-0 max-w-[700px]">
+          <h1 className="absolute inset-0 flex items-center justify-center font-extrabold text-[clamp(120px,18vw,320px)] leading-none text-[#2b2f39] select-none pointer-events-none opacity-30">
+            {err_code.err_code || "404"}
           </h1>
-
-          <div className="relative z-10 flex flex-col gap-6">
-            <h2 className="font-black text-5xl md:text-6xl leading-tight uppercase">
+          <div className="relative z-10 flex flex-col gap-8">
+            <h2 className="font-black leading-tight uppercase text-[clamp(36px,5vw,76px)] max-w-full break-words">
               Страница <br /> не работает
             </h2>
-
-            <p className="max-w-sm text-[#c5c9d2]">
+            <p className="max-w-full text-[#a3ae49] text-[clamp(18px,2.5vw,32px)] break-words">
               Пока не знаем в чём проблема, <br />
-              но мы скоро это починим.
+             но мы скоро это починим.
             </p>
-
-            <Link
-              to="/"
-              className="w-max mt-2 px-6 py-3 rounded-lg bg-[#656dff] hover:bg-[#7f87ff]
-                         font-medium text-sm md:text-base transition-colors"
-            >
-              Окак, на главную
-            </Link>
+            <div className="flex w-[560px]  py-[30px]">
+              <Link to="/">
+                <Button title="Окак, на главную"></Button>
+              </Link>
+            </div>
           </div>
         </div>
-
-        {/* правая часть — картинка кота */}
-        <div className="relative flex items-center justify-center">
+        <div className="relative flex items-center justify-center flex-[3_3_0%] min-w-0 max-w-[700px]">
           <img
             src={catImg}
             alt="Hoodie cat"
-            className="max-h-[500px] object-contain select-none pointer-events-none"
+            className="w-[40vw] max-w-[400px] min-w-[160px] h-auto object-contain select-none pointer-events-none"
           />
         </div>
       </div>
     </section>
   );
-};
+}
+
+
+
 export default ErrorPage;

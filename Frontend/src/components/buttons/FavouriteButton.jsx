@@ -16,7 +16,7 @@ const FavouriteButton = ({ movie_id, favourite, setIsFavourite, setError }) => (
         setError(e);
       }
     }}
-    className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition"
+    className="bg-[#1c1c1e] p-3 rounded-full hover:bg-[#2c2c2e] transition flex-shrink-0"
   >
     {favourite ? (
       <FaHeart className="text-[#C6D459] w-6 h-5" />

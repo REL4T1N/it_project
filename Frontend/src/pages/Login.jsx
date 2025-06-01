@@ -12,8 +12,7 @@ const login = () => {
     username: "",
     password: "",
   });
-  const [error, setError] = useState();
-  const { user, setUser } = useContext(UserContext);
+  const [error, setError] = useState(null);
   const HandlerChange = (e) => {
     setLoginForm((prev) => ({
       ...prev,

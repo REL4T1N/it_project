@@ -4,6 +4,7 @@ import { useParams } from "react-router-dom";
 import { SendReviewData } from "../../API/userAPI";
 const MakeReview = () => {
   const { movie_id } = useParams();
+  const [message, setMessage] = useState(null);
   const [error, setError] = useState(null);
   const [reaction, setReaction] = useState(1); // 1 - neutral, 2 - like, 0 - dislike
   const [review, setReview] = useState({
@@ -30,13 +31,16 @@ const MakeReview = () => {
       const reviewData = {
         text: review.text,
         rating: review.rating,
+        review_name: review.name,
       };
       console.log(reviewData);
       await SendReviewData(reviewData, movie_id);
-      await setReview({ name: "", text: "", rating: 1 });
+      setReview({ name: "", text: "", rating: 1 });
       setReaction(1);
-    } catch (error) {
-      setError(error);
+      setMessage("Рецензия успешно отправлена!");
+    } catch (err) {
+      setError(err.message);
+      console.error("Ошибка при отправке рецензии:", error);
     }
   };
   return (
@@ -44,6 +48,7 @@ const MakeReview = () => {
       <div className="flex space-x-4">
         <input
           type="text"
+          value={review.name}
           name="name"
           className="p-2 border mb-4 w-[60%] mx-6 rounded-xl bg-[#333333] border-[#98a116] text-[#d1e349] "
           placeholder="Название рецензии"
@@ -77,7 +82,8 @@ const MakeReview = () => {
         className="p-2 border mb-4 w-[90%] h-[200px] mx-6 rounded-xl bg-[#333333] border-[#98a116] text-[#d1e349] resize-none"
         placeholder="Твоя рецензия"
       />
-      {error && <p className="text-red-500 px-7">{error.message}</p>}
+      {error && <p className="text-red-500 px-7">{error}</p>}
+      {message && <p className="text-green-500 px-7">{message}</p>}
     </div>
   );
 };

@@ -26,7 +26,10 @@ export async function fetchWrapper(
       const text = await response.text();
       message = text || message;
     }
-    throw new Error(message);
+    const error = new Error()
+    error.status = response.status;
+    error.message = message;
+    throw error;
   }
   return await response.json();
 }

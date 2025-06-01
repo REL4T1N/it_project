@@ -4,6 +4,7 @@ import logopic from "../../assets/pictures/logo1.png";
 import { Link } from "react-router-dom";
 import Button from "../buttons/Button";
 import { useContext } from "react";
+import { Search } from "lucide-react";
 import { UserContext } from "../../context/UserContext";
 function Header() {
   const { user, setUser } = useContext(UserContext);
@@ -16,28 +17,15 @@ function Header() {
           </Link>
         </div>
         <div className="l:text-2xl m:text-lg s:text-lg  table h-full float-right">
-          <div className="l:px-10 m:px-7 s:hidden align-middle table-cell">
-            <h1 className={`${styles.glow} font-`}>Рекомендации</h1>
-          </div>
           <div className="l:px-10 m:px-7 s:px-3 align-middle table-cell">
             <h1 className={styles.glow}>
-              <div className="float-left px-0">💛</div> Избранное{" "}
+              <Link to='/search'><div className="float-left px-2 translate-y-1"><Search/></div> Искать</Link>
             </h1>
           </div>
-          <form
-            method="post"
-            action="/"
-            className="l:px-10 m:px-5 s:px-3  align-middle table-cell"
-          >
-            <input
-              className="h-1/2 l:w-[600px] m:w-[400px] s:w-60 rounded-3xl outline-none px-6 mx-0 bg-[#4d4d4d] flex"
-              placeholder="Поиск"
-            ></input>
-          </form>
           <div className="flex justify-center items-center h-full">
             {user ? (
               <div className="l:px-0 m:px-5 s:px-3">
-                <Link to="/user">
+                <Link to={`/user/${user.id}`}>
                   <img
                     src={lkpic}
                     className={`${styles.lcab} translate-x-5 -translate-y-2`}

@@ -2,14 +2,16 @@ import React, { useContext } from "react";
 import Header from "../components/header/Header";
 import { useState, useEffect } from "react";
 import Button from "../components/buttons/Button";
-import Features from "../components/Features/Features";
 import { Link } from "react-router-dom";
 import { UserContext } from "../context/UserContext";
 import { ChangeUserInfo } from "../API/UserAPI";
 const Settings = () => {
   const { user, setUser } = useContext(UserContext);
   const [error, setError] = useState(null);
-
+  if (error) {
+    console.log(error.message);
+    return <ErrorPage err_code={e.status}/>;
+  }
   return (
     <>
       <Header user={user} />
@@ -58,7 +60,6 @@ const Settings = () => {
           </div>
         </div>
       </div>
-      <Features />
     </>
   );
 };

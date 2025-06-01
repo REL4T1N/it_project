@@ -5,7 +5,7 @@ from ...services.users.users_service import get_user_by_id, check_for_email_and_
 from ...database import get_db
 from ...schemas.user import LoginUser, RegisterUser, UpdateUser, UserResponse
 
-user_router = APIRouter(prefix="/api", tags=["user"])
+user_router = APIRouter(prefix="/api", tags=["User"])
 
 # проверка user_id в Cookie
 @user_router.get("/users/me", response_model=UserResponse)

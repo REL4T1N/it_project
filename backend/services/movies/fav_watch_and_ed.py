@@ -1,13 +1,10 @@
 from sqlalchemy.orm import Session
 
-from ...database import Base
-from ...models import FavoriteList, WatchedMovies, WatchList
 from ...schemas.movie import ListMovieInfo
 from ...schemas.user import UpdateUser
 from ...services.users.users_service import get_user_data, update_user
 from ..errors.movie import MovieAlreadyExistInTable, MovieNotFoundInTable
 from ..errors.user import UserNotFound
-# from ..users_service import get_user_data, update_user
 
 from .movie_repository import checkMovieInDB
 
@@ -48,7 +45,9 @@ def deleteMovieFromTable(model_name, user_id: int, kp_id: int, db: Session) -> b
 def allUserMovieInTable(table_name: str, user_id: int, db: Session) -> list[ListMovieInfo]:
     try:
         user = get_user_data(user_id=user_id, db=db)
-        movies = getattr(user, table_name, None)
+        if table_name == "watch_list_movies":
+            table_name = "watch_list"
+        movies = getattr(user, table_name, None) or [] 
 
         return [ListMovieInfo.model_validate(movie) for movie in movies]
     
@@ -61,7 +60,6 @@ def updateUserSimilarMovies(user_id: int, kp_id: int, db: Session) -> bool:
     user = get_user_data(user_id=user_id, db=db)
     if not user:
         raise UserNotFound
-
 
     user_similar = user.similar_movies
 
@@ -80,7 +78,7 @@ def updateUserSimilarMovies(user_id: int, kp_id: int, db: Session) -> bool:
     if kp_id in user_similar:
         user_similar.remove(kp_id)
 
-    user_data = UpdateUser(similar_movies=user_similar)
-    if updated_user := update_user(user_id=user_id, user_data=user_data, db=db):
-        return True
-    return False
+    user.similar_movies = user_similar
+    db.commit()
+    db.refresh(user)
+    return True

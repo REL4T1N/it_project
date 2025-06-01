@@ -3,14 +3,15 @@ import os
 from sqlalchemy.orm import Session
 from dotenv import load_dotenv
 
-from ...models import User, Genre
-# from ..users_service import get_user_by_id, update_user
+from ...models import Genre
 from ...schemas.user import UserRecommendation, UpdateUser
 from ...schemas.movie import ListMovieInfo
-from ...services.errors.user import UserNotFound
 from ...services.users.users_service import get_user_by_id, update_user
+from ..errors.movie import GenresCountError
 
 from .movie_logic import getMovieInfo
+from .giga import recommend_movies_gigachat
+from .fav_watch_and_ed import allUserMovieInTable
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -77,38 +78,31 @@ def progressiveRec(similar_movies: list[int], db: Session, N: int) -> list[ListM
 
 
 def userRecommendation(user_id: int, db: Session, N: int = 20) -> list[ListMovieInfo]:
+    all_movies: list[ListMovieInfo] = []
     user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
-    if user.similar_movies is not None:
-        return progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
 
-    # Получаем топ-3 жанров и стран
+    if user.similar_movies is not None:
+        all_movies = progressiveRec(similar_movies=user.similar_movies, db=db, N=N)
+        used_movie_ids = set(movie.kp_id for movie in all_movies)
+        if len(all_movies) >= N:
+            return all_movies
+    else:
+        used_movie_ids = set()
+
     user_genres = getTopGenres(user.genres)
     if not user_genres:
-        # написать функцию, которая отдаст просто фильмы из какого-нибудь случайного топа
         return []
-    movie_counts = calculateMovieCounts(top_3_genres=user_genres, total_movies=N)
+    movie_counts = calculateMovieCounts(top_3_genres=user_genres, total_movies=N-len(all_movies))
 
-    all_movies: list[ListMovieInfo] = []
-    used_movie_ids = set()
-
-    # Для каждого жанра выбираем страну с максимальным весом
     for genre, count in movie_counts.items():
-        # Берем страну с наибольшим весом
         movies = apiFilmList(limit=count, genre=genre)
         for movie in movies:
-            # if movie["id"] not in used_movie_ids:
-            #     all_movies.append(ListMovieInfo.model_validate(movie))
-            #     used_movie_ids.add(movie["id"])
             kp_id = movie["id"]
             if kp_id not in used_movie_ids:
-                # Всегда используем getMovieInfo — он сам всё решит
                 all_movies.append(getMovieInfo(kp_id=kp_id, db=db, schema_type=ListMovieInfo))
                 used_movie_ids.add(kp_id)
 
-    # Сортируем по рейтингу и выбираем топ-N
-    all_movies.sort(key=lambda x: x.rating_kp, reverse=True)
     recommendations = all_movies[:N]
-
     return recommendations
 
 
@@ -126,8 +120,38 @@ def addUserGenres(user_id: int, new_genres: list[str], db: Session) -> bool:
             output_genres[genre] = round(persentForOne, 2)
             if len(output_genres) == length_genres:
                 break
-    
+    else:
+        raise GenresCountError(f"Количество жанров {length_genres}, min=3, max=10")
+
     genres_data = UpdateUser(genres=output_genres)
     if user := update_user(user_id=user_id, user_data=genres_data, db=db):
         return True
     return False
+
+
+def rec_by_llm(user_id: int, db: Session) -> list[ListMovieInfo]:
+    user = get_user_by_id(user_id=user_id, db=db, schema_type=UserRecommendation)
+    user_genres = getTopGenres(user.genres)
+
+    lst = []
+    watched = allUserMovieInTable("watched_movies", user_id, db)
+    watch_list = allUserMovieInTable("watch_list_movies", user_id, db)
+    favorited = allUserMovieInTable("favorite_movies", user_id, db)
+    lst = watched + watch_list + favorited
+
+    recommended = recommend_movies_gigachat(user_genres, lst).split("\n")
+    recommended = [movie for movie in recommended if len(movie) > 1 and movie[0].isdigit()]
+    
+    titles = [movie.split('. ', 1)[1].strip() for movie in recommended if '. ' in movie]
+    movies: list[ListMovieInfo] = []
+    
+    for title in titles:
+        url = "https://api.kinopoisk.dev/v1.4/movie/search"
+        params = {"limit": 1, "page": 1, "query": title}
+        response = requests.get(url=url, params=params, headers=headers)
+        if response.status_code == 200:
+            data = response.json()
+            movie = getMovieInfo(data.get("docs", [])[0]["id"], db=db, schema_type=ListMovieInfo)
+            movies.append(movie)
+
+    return movies
