@@ -1,0 +1,15 @@
+.glow {
+  color: hsl(67, 88%, 57%);
+  text-shadow:
+    0 0 10px hsl(54, 72%, 25%),
+    0 0 10px hsl(54, 72%, 25%),
+    0 0 5px hsl(54, 72%, 25%);
+  transition: ease 0.4s;
+}
+.glow:hover {
+  text-shadow:
+    0 0 16px hsl(54, 90%, 40%),
+    0 0 8px hsl(54, 90%, 50%),
+    0 0 2px hsl(54, 90%, 50%);
+  color: hsl(67, 57%, 49%);
+}
