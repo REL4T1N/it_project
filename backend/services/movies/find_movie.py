@@ -79,8 +79,8 @@ def findMovie(movie: FindMovie, db: Session):
     if length := make_range(movie.length_min, movie.length_max, 0, 500000):
         params["movieLength"] = length
 
-    if age := make_range(movie.ageRating_min, movie.ageRating_max, 0, 115):
-        params["ageRating"] = age
+    if movie.ageRating_min is not None:
+        params["ageRating"] = movie.ageRating
 
     if movie.genres is not None:
         params["genres.name"] = movie.genres

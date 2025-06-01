@@ -76,7 +76,6 @@ class FindMovie(BaseModel):
     votes_end: Optional[int] = Field(default=None, ge=0, le=10000000)
     length_min: Optional[int] = Field(default=None, ge=0, le=500000)
     length_max: Optional[int] = Field(default=None, ge=0, le=500000)
-    ageRating_min: Optional[int] = Field(default=None, ge=0, le=115)
-    ageRating_max: Optional[int] = Field(default=None, ge=0, le=115)
+    ageRating: Optional[list[str]] = Field(default=None)
     genres: Optional[list[str]] = Field(None)
     countries: Optional[list[str]] = Field(None)

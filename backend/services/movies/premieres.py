@@ -132,10 +132,11 @@ def searchTopCinemaMovie():
     status = response.status_code
     if response.status_code == 200:
         data = response.json()
-        if data.get("docs", []):
-            movies = bayesianRating(movies=data.get("docs", []))
-            return movies[0]
-        return []
+        movies = bayesianRating(movies=data.get("docs", []))
+        if not movies:
+            raise MovieNotFound
+        
+        return movies[0]
     
     elif status == 401:
         raise UnauthorizedKinoPoiskAPI

@@ -83,7 +83,7 @@ def update_user(user_id: int, user_data: UpdateUser, db: Session) -> UserRespons
         user.email = user_data.email
     if user_data.username is not None:
         user.username = user_data.username
-    if user_data.password is not None:
+    if user_data.password is not None and user_data.password != "":
         hashed_pw = hash_password(user_data.password)
         user.password = hashed_pw
     if user_data.user_description is not None:
