@@ -76,7 +76,7 @@ def update_user(user_id: int, user_data: UpdateUser, db: Session) -> UserRespons
         return None
 
     if (user_data.email and user_data.email != user.email) or (user_data.username and user_data.username != user.username):
-        if check_for_email_or_username(user_data.email or user.email, user_data.username or user.username, db):
+        if check_for_email_or_username(user_data.email, user_data.username, db):
             raise ValueError("Email or username already taken")
         
     if user_data.email is not None:
