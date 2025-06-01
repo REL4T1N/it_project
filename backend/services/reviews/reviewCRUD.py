@@ -1,8 +1,8 @@
 from sqlalchemy.orm import Session
 from typing import Optional
 
-from ...models import Review
-from ...schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse
+from ...models import Review, Movie
+from ...schemas.review import ReviewCreate, ReviewUpdate, ReviewResponse, ReviewWithMovieInfoResponse
 from ..errors.review import ReviewNotFound, ReviewAlreadyExist, ReviewRatingError
 
 def search_review_data(user_id: int, kp_id: int, db: Session) -> Review | None:
@@ -86,9 +86,29 @@ def movie_reviews(kp_id: int, exclude_user_id: Optional[int], db: Session) -> li
     return [ReviewResponse.model_validate(review) for review in reviews]
 
 
-def user_reviews(user_id: int, db: Session) -> list[ReviewResponse]:
-    reviews = db.query(Review).filter(Review.user_id == user_id).all()
-    return [ReviewResponse.model_validate(review) for review in reviews]
+def user_reviews(user_id: int, db: Session) -> list[ReviewWithMovieInfoResponse]:
+    reviews = (
+        db.query(Review, Movie)
+        .join(Movie, Review.kp_id == Movie.kp_id)
+        .filter(Review.user_id == user_id)
+        .all()
+    )
+    result = []
+    for review, movie in reviews:
+        item = ReviewWithMovieInfoResponse(
+            user_id=review.user_id,
+            username=review.user.username,
+            kp_id=review.kp_id,
+            review_name=review.review_name,
+            rating=review.rating,
+            text=review.text,
+            movie_name=movie.name,
+            movie_year=movie.year,
+            movie_rating_kp=movie.rating,
+            movie_poster=movie.poster
+        )
+        result.append(item)
+    return result
 
 
 

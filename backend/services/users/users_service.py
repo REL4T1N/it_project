@@ -76,14 +76,14 @@ def update_user(user_id: int, user_data: UpdateUser, db: Session) -> UserRespons
         return None
 
     if (user_data.email and user_data.email != user.email) or (user_data.username and user_data.username != user.username):
-        if check_for_email_or_username(user_data.email or user.email, user_data.username or user.username, db):
+        if check_for_email_or_username(user_data.email, user_data.username, db):
             raise ValueError("Email or username already taken")
         
     if user_data.email is not None:
         user.email = user_data.email
     if user_data.username is not None:
         user.username = user_data.username
-    if user_data.password is not None:
+    if user_data.password is not None and user_data.password != "":
         hashed_pw = hash_password(user_data.password)
         user.password = hashed_pw
     if user_data.user_description is not None:
