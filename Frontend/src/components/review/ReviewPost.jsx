@@ -23,27 +23,30 @@ const ReviewPost = ({ ReviewPostData, setReview }) => {
     Icon = BiSolidDislike; iconColor = "text-red-400";
   }
 
-
   const handleSave = async () => {
-    try{
-    await EditReviewData({
-      review_name: editTitle,
-      text: editText,
-    }, ReviewPostData.kp_id);
-    await GetUserReviewData(user.id, setReview);
-    setIsEdit(false);
-  }
+    try {
+      await EditReviewData({
+        review_name: editTitle,
+        text: editText,
+      }, ReviewPostData.kp_id);
+      await GetUserReviewData(user.id, setReview);
+      setIsEdit(false);
+    }
     catch (e) {
-      setError(e.message)
+      setError(e.message);
     }
   };
-
 
   const handleEditClick = () => {
     setEditText(ReviewPostData?.text || "");
     setEditTitle(ReviewPostData?.review_name || "");
     setIsEdit(true);
   };
+
+  // --- ДОБАВЬ СЮДА ФИЛЬМ --- (замени на твои поля, если названия другие)
+  const filmPoster = ReviewPostData?.film_poster; // string, url
+  const filmTitle = ReviewPostData?.film_title || "Неизвестный фильм";
+  const filmYear = ReviewPostData?.film_year;
 
   return (
     <div className="min-w-[400px] max-w-[1000px] mb-8 relative pt-5 mx-auto">
@@ -81,7 +84,23 @@ const ReviewPost = ({ ReviewPostData, setReview }) => {
           </span>
         </div>
 
+        {/* Центральная колонка — РЕЦЕНЗИЯ + ФИЛЬМ */}
         <div className="flex-1 flex flex-col min-w-0">
+          {/* --- Фильм --- */}
+          <div className="flex items-center mb-4 gap-4">
+            <img
+              src={ReviewPostData?.movie_poster}
+              alt={ReviewPostData?.movie_name}
+              className="w-16 h-24 object-cover rounded-lg shadow-lg border border-[#232323] bg-[#232323]"
+              style={{ minWidth: 64, maxWidth: 64 }}
+              onError={e => { e.target.style.display = 'none'; }}
+            />
+            <div>
+              <div className="text-[#f4ff54] text-lg font-bold font-[Montserrat]">{ReviewPostData?.movie_name}</div>
+              {ReviewPostData?.movie_year && <div className="text-[#a3ae49] text-base">{ReviewPostData?.movie_year}</div>}
+            </div>
+          </div>
+
           <div className="flex items-center gap-2 mb-1">
             <div className="w-8 h-8 rounded-full bg-[#2f2d2d] flex items-center justify-center text-[#C6DE17] font-bold text-lg">
               {initials}
@@ -129,10 +148,11 @@ const ReviewPost = ({ ReviewPostData, setReview }) => {
               >
                 Отмена
               </button>
-            </div>)}
-            {error && isEdit &&(
-              <div className="text-red-500 mt-2"> {error}</div>
-            )}
+            </div>
+          )}
+          {error && isEdit && (
+            <div className="text-red-500 mt-2"> {error}</div>
+          )}
         </div>
       </div>
     </div>

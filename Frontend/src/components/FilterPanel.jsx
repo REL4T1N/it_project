@@ -5,10 +5,10 @@ import 'rc-slider/assets/index.css';
 
 
 const AGES = [
-  "0+", "6+", "12+", "16+", "18+"
+  "0", "6", "12", "16", "18"
 ];
 
-const YEARS = [1850, new Date().getFullYear()];
+const YEARS = [1950, new Date().getFullYear()];
 const RATINGS = [0, 10];
 const DURATIONS = [20, 240];
 const FilterPanel = ({ filters, setFilters, genres = []}) => {
@@ -53,7 +53,6 @@ const FilterPanel = ({ filters, setFilters, genres = []}) => {
     <div className="bg-[#232323] rounded-2xl p-8 shadow-lg max-w-2xl mx-auto text-[#f4ff54] font-[Montserrat]">
       <h2 className="text-2xl mb-6 text-[#DBF231] font-bold">Фильтры</h2>
       
-      {/* Годы */}
       <div className="mb-6">
         <label className="block mb-2 text-[#C6DE17] font-semibold">Год выпуска:</label>
         <Slider range
@@ -75,7 +74,6 @@ const FilterPanel = ({ filters, setFilters, genres = []}) => {
         </div>
       </div>
       
-      {/* Рейтинг */}
       <div className="mb-6">
         <label className="block mb-2 text-[#C6DE17] font-semibold">Рейтинг:</label>
         <Slider range
@@ -99,7 +97,6 @@ const FilterPanel = ({ filters, setFilters, genres = []}) => {
         </div>
       </div>
 
-      {/* Хронометраж */}
       <div className="mb-6">
         <label className="block mb-2 text-[#C6DE17] font-semibold">Хронометраж (минуты):</label>
         <Slider range
@@ -122,7 +119,6 @@ const FilterPanel = ({ filters, setFilters, genres = []}) => {
         </div>
       </div>
 
-      {/* Возрастной рейтинг */}
       <div className="mb-6">
         <label className="block mb-2 text-[#C6DE17] font-semibold">Возрастной рейтинг:</label>
         <div className="flex gap-2 flex-wrap">
@@ -137,13 +133,11 @@ const FilterPanel = ({ filters, setFilters, genres = []}) => {
               onClick={() => toggleAge(age)}
               type="button"
             >
-              {age}
+              {age}+
             </button>
           ))}
         </div>
       </div>
-
-      {/* Жанры */}
       <div>
         <label className="block mb-2 text-[#C6DE17] font-semibold">Жанры:</label>
         <div className="flex gap-2 flex-wrap">

@@ -37,7 +37,11 @@ const User = () => {
   };
    const saveChanges = async () => {
     try{
-    const new_user = {username: editUsername, email: editEmail, user_description:editDescription, password:editPassword}
+     if (editPassword === "") {
+      const new_user = {username: editUsername, email: editEmail, user_description:editDescription}
+     } else{
+      const new_user = {username: editUsername, email: editEmail, user_description:editDescription, password:editPassword}
+     }
     await EditUser(user?.id, new_user, setUser)
     setIsEditing(false);
     } catch (e) {

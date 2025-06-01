@@ -198,8 +198,7 @@ async def getFindMovies(
     votes_end: Optional[int] = Query(None, ge=0, le=10_000_000, description="Максимальное количество голосов"),
     length_min: Optional[int] = Query(None, ge=0, le=500_000, description="Минимальная длительность (мин)"),
     length_max: Optional[int] = Query(None, ge=0, le=500_000, description="Максимальная длительность (мин)"),
-    ageRating_min: Optional[int] = Query(None, ge=0, le=115, description="Минимальный возрастной рейтинг"),
-    ageRating_max: Optional[int] = Query(None, ge=0, le=115, description="Максимальный возрастной рейтинг"),
+    ageRating: Optional[list[str]] = Query(None, description="Возрастной рейтинг"),
     genres: Optional[list[str]] = Query(None, description="Жанры"),
     countries: Optional[list[str]] = Query(None, description="Страны"),
     db: Session = Depends(get_db)
@@ -215,8 +214,7 @@ async def getFindMovies(
             votes_end=votes_end,
             length_min=length_min,
             length_max=length_max,
-            ageRating_min=ageRating_min,
-            ageRating_max=ageRating_max,
+            ageRating=ageRating,
             genres=genres,
             countries=countries
         )

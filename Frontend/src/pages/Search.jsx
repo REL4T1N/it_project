@@ -5,7 +5,8 @@ import FilterPanel from "../components/FilterPanel";
 import Header from "../components/header/Header";
 import { GetRecomendationData, SendSearch } from "../API/UserAPI";
 import ErrorPage from "../components/ErrorPage";
-
+import LoadingPage from "./LoadingPage";
+import { Link } from "react-router-dom";
 
 const SearchPage = () => {
   const [query, setQuery] = useState("");
@@ -13,24 +14,29 @@ const SearchPage = () => {
   const [showFilters, setShowFilters] = useState(false);
   const [error, setError] = useState(null);
   const [results, setResults] = useState(null)
+  const [isLoading, setIsLoading] = useState(false);
   const [filters, setFilters] = useState({
   genres: [],
-  years: [2000, 2024],
+  years: [1950, 2024],
   ratings: [0, 10],
-  durations: [80, 180],
+  durations: [20, 240],
   ages: [],
   countries: []
 });
 const params = [query, filters.years[0], filters.years[1], filters.ratings[0], filters.ratings[1], 
                         filters.durations[0], filters.durations[1], filters.ages, filters.genres, filters.countries]
   const handleSubmit =async (e) => {
+    setIsLoading(true);
     e.preventDefault();
     try {
         console.log('sdfsdfds')
         await SendSearch(params, setResults)
+        setIsLoading(false);
         
     } catch (error) {
-      console.error("Ошибка при отправке формы:", error);
+        console.error("Ошибка при отправке формы:", error);
+        setError(error);
+        setIsLoading(false);
     }
   };
   
@@ -46,6 +52,9 @@ const params = [query, filters.years[0], filters.years[1], filters.ratings[0], f
   },[]);
   if (error) {
     return <ErrorPage err_code={error.status}/>
+  }
+  if (isLoading) {
+    return <LoadingPage />
   }
   return (
     <>
@@ -99,22 +108,34 @@ const params = [query, filters.years[0], filters.years[1], filters.ratings[0], f
             </div>
 
             {/* Результаты поиска */}
-            <div className="max-w-6xl mx-auto">
-                {results?.length > 0 ? (
-                    <div className="flex flex-wrap gap-8 justify-center">
-                    {results?.map(film => (
-                    <FilmCard
-                        key={film.kp_id}
-                        data={film}
-                    />
-                    ))}
-                </div>
-                ) : (
-                    <div className="text-center text-gray-400 text-xl font-[Montserrat] mt-24">
+            <div className="flex flex-col space-y-6 my-8">
+        {results?.lenght !== 0 ? (results?.map((film) => (
+          <Link to={`/movies/${film?.kp_id}`} key={film?.id}>
+          <div
+            key={film?.id}
+            className="flex items-center bg-[#23251d] rounded-xl p-3 hover:scale-[1.010] transition shadow-lg"
+          >
+            <img
+              src={film?.poster}
+              alt={film?.name}
+              className="h-32 object-cover rounded-xl border-[#C6D459] mr-4"
+            />
+            <div>
+              <div className="flex items-center space-x-2">
+                  <span className="text-[#C6DE17] text-lg font-semibold">
+                    {film?.name}
+                  </span>
+                  <p className="text-[#a3ae49] text-sm">{film?.year}</p>
+              </div>
+            </div>
+          </div>
+          </Link>)
+        )) : (
+            <div className="text-center text-gray-400 text-xl font-[Montserrat] mt-12">
                     Ничего не найдено. Попробуйте изменить запрос или фильтры.
                 </div>
-                )}
-            </div>
+          )}
+          </div>
         </div>
     </div>
     </div>

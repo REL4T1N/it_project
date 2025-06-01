@@ -221,13 +221,23 @@ export async function GetAITops(setTops){
     throw e;
   }
 }
-export async function SendSearch(params, setResult){
+export async function SendSearch(paramsArr, setResult){
   try {
-    const ageMass = encodeURIComponent(JSON.stringify(params[7]))
-    const genreMass= encodeURIComponent(JSON.stringify(params[8]))
-    const countriesMass = encodeURIComponent(JSON.stringify(params[9]))
-    console.log(params)
-    const movies = await fetchWrapper(`/api/movies/find_movies?movie_name=${params[0]}`)
+   const params = new URLSearchParams();
+    params.append('movie_name', paramsArr[0]);
+    params.append('year_start', paramsArr[1]);
+    params.append('year_end', paramsArr[2]);
+    params.append('rating_kp_start', paramsArr[3]);
+    params.append('rating_kp_end', paramsArr[4]);
+    params.append('length_min', paramsArr[5]);
+    params.append('length_max', paramsArr[6]);
+    paramsArr[7]?.forEach(ages => params.append('ageRating', ages));
+    paramsArr[8]?.forEach(genre => params.append('genres', genre));
+    paramsArr[9]?.forEach(country => params.append('countries', country)); 
+    const url = `/api/movies/find_movies/?${params.toString()}`
+    console.log(url)
+    const movies = await fetchWrapper(url)
+    console.log(movies)
     setResult(movies)
   } catch (e) {
     throw e;

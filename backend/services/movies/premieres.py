@@ -6,6 +6,7 @@ from sqlalchemy.orm import Session
 from .movie_logic import getMovieInfo
 from ...schemas.movie import ListMovieInfo, MovieInfo
 from .giga import generate_summary_gigachat
+from ..errors.movie import UnauthorizedKinoPoiskAPI, ForbiddenKinoPoiskAPI, MovieNotFound
 
 dotenv_path = os.path.join(os.path.dirname(os.path.dirname(os.path.dirname(__file__))), '.env')
 load_dotenv(dotenv_path=dotenv_path)
@@ -59,10 +60,18 @@ def searchMoviesInCinema(del_id: int | None = None):
         params["id"] = [f"!{str(del_id)}"]
 
     response = requests.get(url=url, params=params, headers=headers)
+    status = response.status_code
     if response.status_code == 200:
         data = response.json()
         return data.get("docs", [])
-    
+
+    elif status == 401:
+        raise UnauthorizedKinoPoiskAPI
+    elif status == 403:
+        raise ForbiddenKinoPoiskAPI
+    elif status == 404:
+        raise MovieNotFound
+
 
 def searchMoviesPlannedToWatch():
     url = "https://api.kinopoisk.dev/v1.4/movie"
@@ -83,9 +92,17 @@ def searchMoviesPlannedToWatch():
     }
 
     response = requests.get(url=url, params=params, headers=headers)
+    status = response.status_code
     if response.status_code == 200:
         data = response.json()
         return data.get("docs", [])
+    
+    elif status == 401:
+        raise UnauthorizedKinoPoiskAPI
+    elif status == 403:
+        raise ForbiddenKinoPoiskAPI
+    elif status == 404:
+        raise MovieNotFound
     
 
 def searchTopCinemaMovie():
@@ -112,10 +129,21 @@ def searchTopCinemaMovie():
     }
 
     response = requests.get(url=url, params=params, headers=headers)
+    status = response.status_code
     if response.status_code == 200:
         data = response.json()
         movies = bayesianRating(movies=data.get("docs", []))
+        if not movies:
+            raise MovieNotFound
+        
         return movies[0]
+    
+    elif status == 401:
+        raise UnauthorizedKinoPoiskAPI
+    elif status == 403:
+        raise ForbiddenKinoPoiskAPI
+    elif status == 404:
+        raise MovieNotFound
     
 
 def moreMovieDescription(text: str) -> str:
